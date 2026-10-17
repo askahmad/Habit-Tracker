@@ -105,6 +105,7 @@
                         HabitPulse
                         <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">Pro</span>
                     </h1>
+                    <p id="current-date-display" class="text-[11px] text-slate-400 mt-0.5">Loading date...</p>
                     <!-- RPG Level & Rank in Header -->
                     <div class="flex items-center gap-2 mt-1" id="header-rpg-widget">
                         <span id="player-level-badge" class="text-[10px] font-extrabold px-1.5 py-0.2 rounded-md bg-amber-500/15 text-amber-600 dark:text-amber-400">Lv. 1</span>
@@ -1455,20 +1456,28 @@
             const weekDays = getWeekDays(currentWeekOffset);
 
             // Display current date
-            document.getElementById('current-date-display').textContent = today.toLocaleDateString('en-US', {
-                weekday: 'long', month: 'short', day: 'numeric', year: 'numeric'
-            });
+            const dateEl = document.getElementById('current-date-display');
+            if (dateEl) {
+                dateEl.textContent = today.toLocaleDateString('en-US', {
+                    weekday: 'long', month: 'short', day: 'numeric', year: 'numeric'
+                });
+            }
 
             // Display week range
-            const startStr = weekDays[0].toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-            const endStr = weekDays[6].toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-            document.getElementById('week-range-label').textContent = `${startStr} – ${endStr}`;
+            const weekRangeEl = document.getElementById('week-range-label');
+            if (weekRangeEl) {
+                const startStr = weekDays[0].toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                const endStr = weekDays[6].toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                weekRangeEl.textContent = `${startStr} – ${endStr}`;
+            }
 
             const resetBtn = document.getElementById('reset-week-btn');
-            if (currentWeekOffset !== 0) {
-                resetBtn.classList.remove('hidden');
-            } else {
-                resetBtn.classList.add('hidden');
+            if (resetBtn) {
+                if (currentWeekOffset !== 0) {
+                    resetBtn.classList.remove('hidden');
+                } else {
+                    resetBtn.classList.add('hidden');
+                }
             }
 
             // Filter habits
@@ -1484,7 +1493,8 @@
                 filteredHabits = filteredHabits.filter(h => h.name.toLowerCase().includes(q) || h.category.toLowerCase().includes(q));
             }
 
-            document.getElementById('habit-count-badge').textContent = filteredHabits.length;
+            const habitBadge = document.getElementById('habit-count-badge');
+            if (habitBadge) habitBadge.textContent = filteredHabits.length;
 
             renderTableHeader(weekDays, todayKey);
             renderHabitsRows(filteredHabits, weekDays, todayKey);
@@ -1495,7 +1505,9 @@
             renderFocusModeView(todayKey);
             updateRPGHeader();
 
-            lucide.createIcons();
+            if (window.lucide && typeof lucide.createIcons === 'function') {
+                lucide.createIcons();
+            }
         }
 
         function setViewMode(mode) {
