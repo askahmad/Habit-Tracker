@@ -38,9 +38,27 @@
 - **Implementation Triggers:** Attach formulaic cues (e.g., *"After I pour morning coffee, I will Read 20 pages"*).
 - **❄️ Streak Freeze Shield:** Protect your streak on rest or travel days without breaking momentum.
 
-### 📱 6. PWA Offline & Data Safety
-- **Install on iOS / Android / Desktop:** Native app feel with standalone window via `manifest.webmanifest`.
-- **JSON & CSV Backup:** 1-click full export and import so your data is never lost.
+### 🌟 6. First-Time User Onboarding & Environment Setup Wizard
+- **Personalized Setup:** First-time visitors are welcomed into a 3-step setup wizard to configure their name, life archetype, daily completion target (3, 4–5, or 6+ goals), and color theme.
+- **6 Curated Life Archetypes:**
+  - 💻 **Deep Worker & Builder** (Deep work sprints, top priorities, reading, hydration)
+  - 🏃‍♂️ **High-Performance Athlete** (Strength workout, 10,000 steps, cardio, clean nutrition)
+  - 🧘 **Mindful Zen Master** (Meditation, gratitude journal, digital sunset, natural sunlight)
+  - 🌅 **5 AM Morning Titan** (Sunlight, make bed, morning mobility, priorities)
+  - 📚 **Continuous Growth & Scholar** (Read 20 pages, code skill 30m, reflection, language)
+  - ✨ **Holistic & Balanced Life** (Hydration, 8h sleep, 10k steps, top priorities)
+- **+100 Starter XP Bonus:** Instant dopamine kickoff with celebratory confetti and sound upon launching routine.
+
+### 📚 7. 24+ Curated Habit Templates Library & Custom Habits
+- **Pillar Dimensions:** Fitness, Health & Vitality, Mindfulness & Calm, Deep Work & Productivity, Learning & Growth, and Nutrition Discipline.
+- **1-Click Add:** Browse individual templates with live search and category pills, or import curated routine bundles.
+- **Inline Custom Habit Creator:** Seamlessly add bespoke habits with custom icons, routines, categories, and *Atomic Habits* stacking cues.
+
+### 📱 8. 100% Responsive Mobile Architecture (320px–4K)
+- **Sticky Column Habit Matrix:** Smooth horizontal touch-scrolling with the habit title pinned on the left with backdrop blur and drop shadow.
+- **Fixed Mobile Bottom Navigation:** Quick 1-tap switching between Matrix, Today Focus (with notification badge), 20+ Habits, Rank, and Mobile Hub.
+- **Mobile Tools Hub Sheet:** Slide-up quick drawer for Pomodoro timer, ambient rain audio, streak sharing, backups, and environment re-tuning.
+- **Touch-Optimized:** Minimum 44px touch targets and iOS safe area padding support.
 
 ---
 
@@ -49,6 +67,7 @@
 | Shortcut | Action |
 | :--- | :--- |
 | `N` | Open Create Habit Modal |
+| `O` | Personalize Environment & Habits Setup Wizard |
 | `T` | Jump back to Today / Current Week |
 | `M` | Mark all habits complete for Today |
 | `D` | Toggle Dark / Light Theme |

@@ -1,5 +1,5 @@
 // Service Worker for HabitPulse PWA
-const CACHE_NAME = 'habitpulse-cache-v1';
+const CACHE_NAME = 'habitpulse-cache-v2';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
