@@ -1,6 +1,9 @@
 {
   "version": 2,
-  "cleanUrls": true,
+  "cleanUrls": false,
+  "rewrites": [
+    { "source": "/google6ea23c10c93f9b0b", "destination": "/google6ea23c10c93f9b0b.html" }
+  ],
   "headers": [
     {
       "source": "/(.*)",
