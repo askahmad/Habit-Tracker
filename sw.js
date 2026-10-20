@@ -40,6 +40,13 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   // Network first, falling back to cache
   if (event.request.method !== 'GET') return;
+
+  // Bypass cache for Firebase authentication and Cloud Firestore endpoints
+  const url = event.request.url;
+  if (url.includes('firebase') || url.includes('googleapis.com') || url.includes('identitytoolkit') || url.includes('securetoken')) {
+    return;
+  }
+
   event.respondWith(
     fetch(event.request)
       .then((networkResponse) => {

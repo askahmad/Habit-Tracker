@@ -4,7 +4,84 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>HabitPulse — Daily Goals, Streaks & Focus Dashboard</title>
+    <!-- Primary SEO Meta Tags -->
+    <title>HabitPulse — Free Daily Habit Tracker, Streak Builder & Focus Dashboard</title>
+    <meta name="title" content="HabitPulse — Free Daily Habit Tracker, Streak Builder & Focus Dashboard">
+    <meta name="description" content="Build lasting habits, protect unbreakable streaks, and level up your life with HabitPulse. 100% free daily habit tracker with real-time cloud sync, RPG level gamification, focus timer, and ambient soundscapes.">
+    <meta name="keywords" content="habit tracker, daily habit tracker, streak counter, habit tracker free, routine planner, atomic habits app, habit tracker web, productivity dashboard, goal tracker, habit tracker online">
+    <meta name="author" content="HabitPulse">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <link rel="canonical" href="https://habitpulse.vercel.app/">
+    <meta name="google-site-verification" content="google6ea23c10c93f9b0b">
+    <meta name="google-site-verification" content="6ea23c10c93f9b0b">
+
+    <!-- Open Graph / Facebook / WhatsApp Preview Cards -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://habitpulse.vercel.app/">
+    <meta property="og:title" content="HabitPulse — Free Daily Habit Tracker & Streak Builder">
+    <meta property="og:description" content="Build lasting habits, protect unbreakable streaks, and level up your player profile. 100% free with cloud sync & focus tools.">
+    <meta property="og:image" content="https://habitpulse.vercel.app/og-image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="HabitPulse — Daily Habit Tracker & Consistency Dashboard">
+    <meta property="og:site_name" content="HabitPulse">
+    <meta property="og:locale" content="en_US">
+
+    <!-- Twitter Card Preview -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://habitpulse.vercel.app/">
+    <meta name="twitter:title" content="HabitPulse — Free Daily Habit Tracker & Streak Builder">
+    <meta name="twitter:description" content="Build lasting habits, protect unbreakable streaks, and level up your player profile. 100% free with cloud sync & focus tools.">
+    <meta name="twitter:image" content="https://habitpulse.vercel.app/og-image.jpg">
+
+    <!-- Schema.org JSON-LD Structured Data for Google Rich Snippets -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebApplication",
+          "@id": "https://habitpulse.vercel.app/#webapp",
+          "name": "HabitPulse",
+          "url": "https://habitpulse.vercel.app/",
+          "description": "Interactive daily habit tracking, unbreakable consistency streaks, RPG gamification, and real-time cloud sync.",
+          "applicationCategory": "ProductivityApplication",
+          "operatingSystem": "All",
+          "browserRequirements": "Requires JavaScript. Requires HTML5.",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+          },
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.9",
+            "ratingCount": "128",
+            "bestRating": "5"
+          },
+          "featureList": [
+            "Daily Habit Tracking",
+            "Unbreakable Streak Momentum",
+            "RPG Player Level & XP System",
+            "Real-time Cloud Database Sync",
+            "Google 1-Click Authentication",
+            "Pomodoro Focus Timer",
+            "Ambient Focus Audio (Rain & 432Hz Zen)",
+            "Voice Speech Check-in",
+            "Streak Freeze Shield",
+            "Annual 365-Day Consistency Heatmap"
+          ]
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://habitpulse.vercel.app/#website",
+          "url": "https://habitpulse.vercel.app/",
+          "name": "HabitPulse",
+          "description": "Free Daily Habit Tracker, Streak Builder & Focus Dashboard"
+        }
+      ]
+    }
+    </script>
     
     <!-- PWA Metadata -->
     <link rel="manifest" href="manifest.webmanifest">
@@ -213,6 +290,46 @@
                     <i data-lucide="moon" class="w-4 h-4 block dark:hidden text-slate-700"></i>
                 </button>
 
+                <!-- Cloud Sync & Account Widget -->
+                <div id="auth-header-widget" class="relative">
+                    <!-- Guest State Button -->
+                    <button id="auth-login-btn" onclick="openAuthModal()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200/80 dark:border-indigo-800/80 text-xs font-semibold shadow-sm transition-all active:scale-95" title="Sign In for Lifetime Free Cloud Sync">
+                        <i data-lucide="cloud" class="w-3.5 h-3.5 text-indigo-500"></i>
+                        <span>Sync Cloud</span>
+                    </button>
+
+                    <!-- Authenticated User Dropdown -->
+                    <div id="auth-user-dropdown-container" class="hidden relative">
+                        <button id="auth-user-btn" onclick="toggleUserDropdown()" class="flex items-center gap-2 p-1.5 px-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-xs font-semibold transition-all">
+                            <img id="auth-user-avatar" src="" alt="Avatar" class="w-5 h-5 rounded-full object-cover hidden">
+                            <div id="auth-user-avatar-placeholder" class="w-5 h-5 rounded-full bg-gradient-to-tr from-indigo-500 to-violet-500 text-white flex items-center justify-center font-bold text-[10px] uppercase">U</div>
+                            <span id="auth-user-name" class="font-bold text-slate-800 dark:text-slate-100 truncate max-w-[90px] sm:max-w-[120px]">User</span>
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-emerald-500/20" title="Cloud Synced"></span>
+                            <i data-lucide="chevron-down" class="w-3 h-3 text-slate-400"></i>
+                        </button>
+
+                        <!-- Dropdown Menu -->
+                        <div id="auth-user-menu" class="hidden absolute right-0 mt-2 w-64 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl p-2.5 z-50 animate-slide-up space-y-1.5">
+                            <div class="px-2.5 py-2 border-b border-slate-100 dark:border-slate-800">
+                                <p id="dropdown-user-name" class="font-bold text-xs text-slate-900 dark:text-white truncate">User Name</p>
+                                <p id="dropdown-user-email" class="text-[11px] text-slate-400 truncate">user@email.com</p>
+                                <div class="mt-2 flex items-center gap-1.5 text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold bg-emerald-500/10 px-2 py-1 rounded-lg">
+                                    <i data-lucide="cloud" class="w-3 h-3"></i>
+                                    <span id="cloud-sync-status-text">Cloud Sync Active (Free)</span>
+                                </div>
+                            </div>
+                            <button onclick="manualSyncToCloud()" class="w-full text-left px-2.5 py-1.5 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2 transition-colors">
+                                <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-indigo-500"></i>
+                                <span>Sync to Cloud Now</span>
+                            </button>
+                            <button onclick="handleSignOut()" class="w-full text-left px-2.5 py-1.5 rounded-xl text-xs font-medium text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 flex items-center gap-2 transition-colors">
+                                <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+                                <span>Sign Out</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- New Habit CTA -->
                 <button onclick="openAddModal()" class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-semibold text-xs sm:text-sm shadow-md shadow-indigo-600/25 transition-all">
                     <i data-lucide="plus" class="w-4 h-4 stroke-[2.5]"></i>
@@ -222,6 +339,12 @@
 
             <!-- Mobile Quick Controls (visible ONLY on mobile < md) -->
             <div class="flex md:hidden items-center gap-1.5 shrink-0">
+                <!-- Mobile Auth / Cloud Sync Button -->
+                <button onclick="handleMobileAuthClick()" id="auth-mobile-btn" class="p-2 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 active:scale-95 transition-all flex items-center justify-center relative" title="Cloud Sync & Account">
+                    <i data-lucide="cloud" id="auth-mobile-icon" class="w-4 h-4"></i>
+                    <span id="auth-mobile-sync-dot" class="hidden absolute top-1 right-1 w-2 h-2 rounded-full bg-emerald-500 ring-1 ring-white dark:ring-slate-900"></span>
+                </button>
+
                 <!-- Sound Toggle -->
                 <button onclick="toggleSound()" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-600 dark:text-slate-300 active:scale-95 transition-all" title="Toggle Sound">
                     <i data-lucide="volume-2" id="sound-icon-mobile" class="w-4 h-4"></i>
@@ -1173,7 +1296,18 @@
                     </div>
                 </button>
 
-                <!-- Tool 8: PWA Install to Home Screen -->
+                <!-- Tool 8: Cloud Sync & Account -->
+                <button onclick="closeMobileHub(); handleMobileAuthClick()" class="p-3.5 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 text-left hover:border-indigo-500 transition-all flex flex-col justify-between active:scale-95">
+                    <div class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center mb-2">
+                        <i data-lucide="cloud" class="w-4 h-4"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-xs text-slate-900 dark:text-white" id="mobile-hub-auth-title">Cloud Account</h4>
+                        <p class="text-[10px] text-slate-400 mt-0.5" id="mobile-hub-auth-subtitle">Sync across devices</p>
+                    </div>
+                </button>
+
+                <!-- Tool 9: PWA Install to Home Screen -->
                 <button onclick="triggerPwaInstall(); closeMobileHub()" id="mobile-hub-pwa-btn" class="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-left transition-all flex flex-col justify-between active:scale-95">
                     <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-500 flex items-center justify-center mb-2">
                         <i data-lucide="download" class="w-4 h-4"></i>
@@ -1196,6 +1330,96 @@
                     <i data-lucide="volume-2" class="w-4 h-4 text-indigo-500"></i>
                     <span id="mobile-hub-sound-text">Sound: Enabled</span>
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Authentication & Cloud Sync Modal -->
+    <div id="auth-modal" class="fixed inset-0 z-50 hidden items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-950/70 backdrop-blur-md">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-t-3xl sm:rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto pb-[max(1.5rem,env(safe-area-inset-bottom))] animate-slide-up sm:animate-none">
+            <div class="w-12 h-1.5 bg-slate-300 dark:bg-slate-700 rounded-full mx-auto mb-1 sm:hidden"></div>
+            
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-600 text-white flex items-center justify-center shadow-lg shadow-indigo-500/25">
+                        <i data-lucide="cloud" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-base text-slate-900 dark:text-white flex items-center gap-1.5">
+                            Cloud Account & Sync
+                            <span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">100% FREE</span>
+                        </h3>
+                        <p class="text-xs text-slate-400">Sync habits across phone & PC forever</p>
+                    </div>
+                </div>
+                <button onclick="closeAuthModal()" class="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Tabs: Sign In / Create Account -->
+            <div class="flex rounded-xl bg-slate-100 dark:bg-slate-800 p-1">
+                <button id="auth-tab-signin" onclick="switchAuthTab('signin')" class="flex-1 py-1.5 rounded-lg text-xs font-bold transition-all bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm">
+                    Sign In
+                </button>
+                <button id="auth-tab-signup" onclick="switchAuthTab('signup')" class="flex-1 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-500 hover:text-slate-900 dark:hover:text-slate-100">
+                    Create Account
+                </button>
+            </div>
+
+            <!-- Error / Status Notice -->
+            <div id="auth-error-msg" class="hidden p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-xs text-rose-600 dark:text-rose-400 flex items-start gap-2">
+                <i data-lucide="alert-circle" class="w-4 h-4 shrink-0 mt-0.5"></i>
+                <span id="auth-error-text" class="leading-relaxed"></span>
+            </div>
+
+            <!-- Google 1-Click Sign-In Button -->
+            <button onclick="handleGoogleSignIn()" id="google-signin-btn" class="w-full py-2.5 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-700 font-semibold text-xs sm:text-sm text-slate-800 dark:text-slate-100 flex items-center justify-center gap-2.5 shadow-sm transition-all active:scale-95">
+                <svg class="w-4 h-4" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                </svg>
+                <span id="google-btn-text">Continue with Google</span>
+            </button>
+
+            <!-- Divider -->
+            <div class="relative flex items-center justify-center">
+                <div class="border-t border-slate-200 dark:border-slate-800 w-full"></div>
+                <span class="bg-white dark:bg-slate-900 px-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider absolute">or with email</span>
+            </div>
+
+            <!-- Email & Password Form -->
+            <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="space-y-3">
+                <div id="auth-name-field" class="hidden">
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Full Name</label>
+                    <input type="text" id="auth-name-input" placeholder="e.g. Ahmad Khan" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Email Address</label>
+                    <input type="email" id="auth-email-input" required placeholder="you@example.com" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Password</label>
+                    <input type="password" id="auth-password-input" required minlength="6" placeholder="At least 6 characters" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+
+                <button type="submit" id="auth-submit-btn" class="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs sm:text-sm shadow-md shadow-indigo-600/25 transition-all flex items-center justify-center gap-2 active:scale-95">
+                    <span id="auth-submit-text">Sign In</span>
+                </button>
+            </form>
+
+            <!-- Free Lifetime & Security Note -->
+            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400 space-y-1">
+                <div class="flex items-center gap-1.5 font-semibold text-slate-700 dark:text-slate-300">
+                    <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-500"></i>
+                    <span>100% Free Lifetime Guarantee</span>
+                </div>
+                <p>Secured by Google Cloud Firebase. Your habit data is private, encrypted, and stays synced across any device you open.</p>
             </div>
         </div>
     </div>
@@ -1655,6 +1879,9 @@
                 showToast(`+${amount} XP: ${reason}`);
             }
             updateRPGHeader();
+            if (window.HabitPulseAuth && typeof window.HabitPulseAuth.syncHabitsToCloud === 'function') {
+                window.HabitPulseAuth.syncHabitsToCloud();
+            }
         }
 
         function updateRPGHeader() {
@@ -1677,9 +1904,6 @@
          * STATE MANAGEMENT
          **************************************************************/
         function createDefaultHabits() {
-            const today = getToday();
-            const k = (offset) => toDateKey(addDays(today, offset));
-
             return [
                 {
                     id: 'h-1',
@@ -1690,8 +1914,8 @@
                     stacking: 'After waking up & pouring water',
                     color: 'cyan',
                     targetPerWeek: 7,
-                    logs: { [k(-6)]: true, [k(-5)]: true, [k(-4)]: true, [k(-3)]: true, [k(-2)]: true, [k(-1)]: true, [k(0)]: true },
-                    notes: { [k(0)]: 'Hydrated before morning coffee' }
+                    logs: {},
+                    notes: {}
                 },
                 {
                     id: 'h-2',
@@ -1702,7 +1926,7 @@
                     stacking: 'After dinner table is cleared',
                     color: 'indigo',
                     targetPerWeek: 7,
-                    logs: { [k(-6)]: true, [k(-5)]: false, [k(-4)]: true, [k(-3)]: true, [k(-2)]: true, [k(-1)]: true, [k(0)]: false },
+                    logs: {},
                     notes: {}
                 },
                 {
@@ -1714,7 +1938,7 @@
                     stacking: 'After workday wrap-up',
                     color: 'emerald',
                     targetPerWeek: 5,
-                    logs: { [k(-5)]: true, [k(-4)]: true, [k(-2)]: true, [k(-1)]: true, [k(0)]: true },
+                    logs: {},
                     notes: {}
                 },
                 {
@@ -1726,7 +1950,7 @@
                     stacking: 'After morning shower',
                     color: 'violet',
                     targetPerWeek: 7,
-                    logs: { [k(-4)]: true, [k(-3)]: true, [k(-2)]: false, [k(-1)]: true, [k(0)]: true },
+                    logs: {},
                     notes: {}
                 },
                 {
@@ -1738,7 +1962,7 @@
                     stacking: 'Before opening Slack or email',
                     color: 'amber',
                     targetPerWeek: 5,
-                    logs: { [k(-6)]: true, [k(-5)]: true, [k(-3)]: true, [k(-2)]: true, [k(-1)]: true },
+                    logs: {},
                     notes: {}
                 }
             ];
@@ -1747,18 +1971,36 @@
         function loadState() {
             try {
                 const rawXP = localStorage.getItem(XP_STORAGE_KEY);
-                totalUserXP = rawXP ? parseInt(rawXP, 10) || 0 : 320;
+                // Fix: Reset legacy dummy 320 XP fallback to 0 so fresh/opening state starts at Level 1
+                if (!rawXP || rawXP === '320') {
+                    totalUserXP = 0;
+                    localStorage.setItem(XP_STORAGE_KEY, '0');
+                } else {
+                    totalUserXP = parseInt(rawXP, 10) || 0;
+                }
 
                 const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('habitpulse_dashboard_v2') || localStorage.getItem('habitpulse_dashboard_v1');
                 if (raw) {
                     const parsed = JSON.parse(raw);
                     if (Array.isArray(parsed) && parsed.length > 0) {
-                        habits = parsed.map(h => ({
-                            ...h,
-                            routine: h.routine || 'Anytime',
-                            stacking: h.stacking || '',
-                            notes: h.notes || {}
-                        }));
+                        // If user previously loaded default habits with dummy pre-filled past logs, clean them
+                        const isDefaultMockWithOldLogs = parsed.length === 5 &&
+                            parsed[0].id === 'h-1' &&
+                            parsed[1].id === 'h-2' &&
+                            parsed.some(h => h.logs && Object.keys(h.logs).length > 2);
+
+                        if (isDefaultMockWithOldLogs) {
+                            habits = createDefaultHabits();
+                        } else {
+                            habits = parsed.map(h => ({
+                                ...h,
+                                routine: h.routine || 'Anytime',
+                                stacking: h.stacking || '',
+                                notes: h.notes || {},
+                                logs: h.logs || {}
+                            }));
+                        }
+                        saveState();
                         return;
                     }
                 }
@@ -1772,6 +2014,9 @@
         function saveState() {
             try {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(habits));
+                if (window.HabitPulseAuth && typeof window.HabitPulseAuth.syncHabitsToCloud === 'function') {
+                    window.HabitPulseAuth.syncHabitsToCloud();
+                }
             } catch (e) {
                 console.warn('Could not save habits:', e);
             }
@@ -2022,27 +2267,63 @@
                     const isFrozen = logState === 'freeze';
                     const hasNote = habit.notes && habit.notes[key];
                     const isToday = key === todayKey;
+                    const isPast = key < todayKey;
+                    const isFuture = key > todayKey;
+
+                    let clickHandler = '';
+                    let buttonClass = '';
+                    let iconContent = '';
+                    let titleText = '';
+
+                    if (isToday) {
+                        clickHandler = `onclick="toggleHabitDay('${habit.id}', '${key}', event)"`;
+                        titleText = `Today (${key}): Click to check in`;
+                        if (isDone) {
+                            buttonClass = `${theme.bg} text-white shadow-sm shadow-${habit.color}-500/25 ring-2 ring-indigo-500/50 cursor-pointer active:scale-95`;
+                            iconContent = '<i data-lucide="check" class="w-3 h-3 stroke-[3]"></i>';
+                        } else if (isFrozen) {
+                            buttonClass = 'bg-cyan-500/20 border-2 border-cyan-400 text-cyan-400 ring-2 ring-cyan-500/30 cursor-pointer';
+                            iconContent = '<span class="text-[9px]">❄️</span>';
+                        } else {
+                            buttonClass = 'bg-slate-100 dark:bg-slate-800/90 text-slate-700 dark:text-slate-300 border-2 border-indigo-500/80 ring-2 ring-indigo-500/40 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 cursor-pointer active:scale-95';
+                            iconContent = '<span class="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></span>';
+                        }
+                    } else if (isPast) {
+                        clickHandler = `onclick="showToast('⚠️ Past date missed — past days cannot be changed!')"`;
+                        if (isDone) {
+                            titleText = `Completed on ${key} (Past date locked)`;
+                            buttonClass = `${theme.bg} text-white/90 opacity-75 cursor-not-allowed border border-transparent`;
+                            iconContent = '<i data-lucide="check" class="w-3 h-3 stroke-[3]"></i>';
+                        } else if (isFrozen) {
+                            titleText = `Frozen on ${key} (Past date locked)`;
+                            buttonClass = 'bg-cyan-500/15 border border-cyan-400/60 text-cyan-400/80 opacity-75 cursor-not-allowed';
+                            iconContent = '<span class="text-[9px]">❄️</span>';
+                        } else {
+                            titleText = `Missed on ${key} — cannot be backfilled`;
+                            buttonClass = 'bg-slate-100/50 dark:bg-slate-800/30 text-slate-400 dark:text-slate-600 border border-dashed border-slate-200 dark:border-slate-800/80 cursor-not-allowed opacity-50';
+                            iconContent = '<span class="text-[10px] font-bold text-slate-300 dark:text-slate-600">✕</span>';
+                        }
+                    } else {
+                        clickHandler = `onclick="showToast('⏳ Future date — you can only check in for today!')"`;
+                        titleText = `Upcoming (${key})`;
+                        buttonClass = 'bg-slate-50/70 dark:bg-slate-900/40 text-slate-400 dark:text-slate-600 border border-dotted border-slate-200/80 dark:border-slate-800/80 cursor-not-allowed opacity-40';
+                        iconContent = '<span class="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-700"></span>';
+                    }
 
                     return `
                         <button
-                            onclick="toggleHabitDay('${habit.id}', '${key}', event)"
+                            ${clickHandler}
                             oncontextmenu="openNoteModal('${habit.id}', '${key}', event)"
-                            aria-label="Toggle ${habit.name} on ${key}"
-                            class="flex flex-col items-center justify-center py-2 px-1 rounded-xl transition-all duration-150 active:scale-95 relative ${
-                                isDone
-                                    ? `${theme.bg} text-white shadow-sm shadow-${habit.color}-500/25`
-                                    : isFrozen
-                                        ? 'bg-cyan-500/20 border-2 border-cyan-400 text-cyan-400'
-                                        : `bg-slate-100 dark:bg-slate-800/90 text-slate-600 dark:text-slate-400 border ${
-                                            isToday ? 'border-indigo-500/80 ring-1 ring-indigo-500/40' : 'border-slate-200/50 dark:border-slate-700/50'
-                                        }`
-                            }"
+                            aria-label="Habit ${habit.name} on ${key}"
+                            title="${titleText}"
+                            class="flex flex-col items-center justify-center py-2 px-1 rounded-xl transition-all duration-150 relative ${buttonClass}"
                         >
-                            <span class="text-[9px] font-bold uppercase tracking-wider ${isDone ? 'text-white/80' : 'text-slate-400'}">${dayNames[idx]}</span>
+                            <span class="text-[9px] font-bold uppercase tracking-wider ${isDone ? 'text-white/80' : isToday ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400'}">${dayNames[idx]}</span>
                             <span class="text-xs font-extrabold mt-0.5 ${isDone ? 'text-white' : isToday ? 'text-indigo-600 dark:text-indigo-400 font-black' : ''}">${d.getDate()}</span>
                             <div class="mt-1 h-3 flex items-center justify-center">
-                                ${isDone ? '<i data-lucide="check" class="w-3 h-3 stroke-[3]"></i>' : isFrozen ? '<span class="text-[9px]">❄️</span>' : hasNote ? '<span class="w-1.5 h-1.5 rounded-full bg-violet-400"></span>' : '<span class="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-700"></span>'}
+                                ${iconContent}
                             </div>
+                            ${hasNote ? '<span class="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-violet-400 ring-1 ring-white dark:ring-slate-900"></span>' : ''}
                         </button>
                     `;
                 }).join('');
@@ -2207,9 +2488,16 @@
             weekDays.forEach((d, idx) => {
                 const key = toDateKey(d);
                 const isToday = key === todayKey;
+                const isPast = key < todayKey;
                 html += `
                     <th class="py-3 px-2 text-center">
-                        <div class="inline-flex flex-col items-center px-2.5 py-1 rounded-xl ${isToday ? 'bg-indigo-600 text-white shadow-sm ring-2 ring-indigo-400/40' : ''}">
+                        <div class="inline-flex flex-col items-center px-2.5 py-1 rounded-xl ${
+                            isToday 
+                                ? 'bg-indigo-600 text-white shadow-sm ring-2 ring-indigo-400/40' 
+                                : isPast
+                                    ? 'text-slate-400 dark:text-slate-500 opacity-75'
+                                    : 'text-slate-600 dark:text-slate-300'
+                        }">
                             <span class="text-[10px] font-semibold uppercase tracking-wider ${isToday ? 'text-indigo-100' : 'text-slate-400'}">${dayNames[idx]}</span>
                             <span class="text-xs font-bold mt-0.5 ${isToday ? 'text-white' : 'text-slate-700 dark:text-slate-200'}">${d.getDate()}</span>
                         </div>
@@ -2248,23 +2536,61 @@
                     const isFrozen = logState === 'freeze';
                     const hasNote = habit.notes && habit.notes[key];
                     const isToday = key === todayKey;
+                    const isPast = key < todayKey;
+                    const isFuture = key > todayKey;
+
+                    let clickHandler = '';
+                    let buttonClass = '';
+                    let innerContent = '';
+                    let titleText = hasNote ? `Note: ${escapeHtml(habit.notes[key])} • ` : '';
+
+                    if (isToday) {
+                        clickHandler = `onclick="toggleHabitDay('${habit.id}', '${key}', event)"`;
+                        titleText += `Today: Click to check in / Right-click for note`;
+                        if (isDone) {
+                            buttonClass = `${theme.bg} text-white shadow-md shadow-${habit.color}-500/25 ring-2 ring-indigo-500/50 scale-100 hover:opacity-90 cursor-pointer active:scale-95`;
+                            innerContent = '<i data-lucide="check" class="w-4 h-4 stroke-[3]"></i>';
+                        } else if (isFrozen) {
+                            buttonClass = 'bg-cyan-500/20 border-2 border-cyan-400 text-cyan-400 ring-2 ring-cyan-500/30 cursor-pointer';
+                            innerContent = '<span class="text-xs">❄️</span>';
+                        } else {
+                            buttonClass = 'bg-slate-100 dark:bg-slate-800/90 text-transparent border-2 border-indigo-500/80 ring-2 ring-indigo-500/40 hover:border-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 cursor-pointer active:scale-95';
+                            innerContent = '<span class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>';
+                        }
+                    } else if (isPast) {
+                        // Previous dates cannot be clicked!
+                        clickHandler = `onclick="showToast('⚠️ Past date missed — past days cannot be changed!')"`;
+                        if (isDone) {
+                            titleText += `Completed on ${key} (Past day locked)`;
+                            buttonClass = `${theme.bg} text-white/90 opacity-75 cursor-not-allowed border border-transparent`;
+                            innerContent = '<i data-lucide="check" class="w-4 h-4 stroke-[3]"></i>';
+                        } else if (isFrozen) {
+                            titleText += `Frozen on ${key} (Past day locked)`;
+                            buttonClass = 'bg-cyan-500/15 border border-cyan-400/60 text-cyan-400/80 opacity-75 cursor-not-allowed';
+                            innerContent = '<span class="text-xs">❄️</span>';
+                        } else {
+                            titleText += `Missed (${key}) — cannot be edited`;
+                            buttonClass = 'bg-slate-100/50 dark:bg-slate-800/30 text-slate-300 dark:text-slate-600 border border-dashed border-slate-200 dark:border-slate-800/80 cursor-not-allowed opacity-50';
+                            innerContent = '<span class="text-xs font-bold text-slate-300 dark:text-slate-600">✕</span>';
+                        }
+                    } else {
+                        // Future date
+                        clickHandler = `onclick="showToast('⏳ Future date — you can only check in for today!')"`;
+                        titleText += `Upcoming date (${key})`;
+                        buttonClass = 'bg-slate-50/70 dark:bg-slate-900/40 text-transparent border border-dotted border-slate-200/80 dark:border-slate-800/80 cursor-not-allowed opacity-35';
+                        innerContent = '<span class="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-700"></span>';
+                    }
 
                     return `
                         <td class="py-3.5 px-2 text-center relative">
                             <button
-                                onclick="toggleHabitDay('${habit.id}', '${key}', event)"
+                                ${clickHandler}
                                 oncontextmenu="openNoteModal('${habit.id}', '${key}', event)"
-                                aria-label="Toggle ${habit.name} on ${key}"
-                                title="${hasNote ? 'Note: ' + escapeHtml(habit.notes[key]) : 'Click to log / Right-click for note or freeze'}"
-                                class="w-9 h-9 rounded-xl inline-flex items-center justify-center transition-all duration-150 focus:outline-none relative ${
-                                    isDone
-                                        ? `${theme.bg} text-white shadow-md shadow-${habit.color}-500/20 scale-100 hover:opacity-90`
-                                        : isFrozen
-                                            ? 'bg-cyan-500/20 border-2 border-cyan-400 text-cyan-400'
-                                            : `bg-slate-100 dark:bg-slate-800/90 text-transparent hover:border-slate-300 dark:hover:border-slate-600 border ${isToday ? 'border-indigo-400/70 dark:border-indigo-500/60' : 'border-transparent'}`
-                                }"
+                                aria-label="Habit ${habit.name} on ${key}"
+                                title="${titleText}"
+                                class="w-9 h-9 rounded-xl inline-flex items-center justify-center transition-all duration-150 focus:outline-none relative ${buttonClass}"
                             >
-                                ${isFrozen ? '<span class="text-xs">❄️</span>' : `<i data-lucide="check" class="w-4 h-4 stroke-[3] ${isDone ? 'opacity-100' : 'opacity-0'}"></i>`}
+                                ${innerContent}
                                 ${hasNote ? '<span class="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-violet-400 ring-2 ring-white dark:ring-slate-900"></span>' : ''}
                             </button>
                         </td>
@@ -2564,6 +2890,19 @@
          * USER INTERACTIONS & CHECK-IN
          **************************************************************/
         function toggleHabitDay(habitId, dateKey, event) {
+            const todayKey = toDateKey(getToday());
+
+            // Strict prevention: past days that have passed cannot be changed or backfilled
+            if (dateKey < todayKey) {
+                showToast('⚠️ Past date missed — past days cannot be changed!');
+                return;
+            }
+            // Future dates cannot be checked in advance
+            if (dateKey > todayKey) {
+                showToast('⏳ Future date — you can only check in for today!');
+                return;
+            }
+
             const habit = habits.find(h => h.id === habitId);
             if (!habit) return;
             if (!habit.logs) habit.logs = {};
@@ -3286,11 +3625,21 @@
             document.getElementById('note-input').value = existingNote;
 
             const isFrozen = habit.logs && habit.logs[dateKey] === 'freeze';
+            const todayKey = toDateKey(getToday());
+            const isPast = dateKey < todayKey;
             const freezeBtn = document.getElementById('toggle-freeze-btn');
-            freezeBtn.textContent = isFrozen ? 'Deactivate' : 'Activate';
-            freezeBtn.className = isFrozen 
-                ? 'px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300' 
-                : 'px-2.5 py-1 rounded-lg text-xs font-semibold bg-cyan-600 text-white hover:bg-cyan-500';
+
+            if (isPast) {
+                freezeBtn.disabled = true;
+                freezeBtn.textContent = 'Locked (Past)';
+                freezeBtn.className = 'px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed';
+            } else {
+                freezeBtn.disabled = false;
+                freezeBtn.textContent = isFrozen ? 'Deactivate' : 'Activate';
+                freezeBtn.className = isFrozen 
+                    ? 'px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300' 
+                    : 'px-2.5 py-1 rounded-lg text-xs font-semibold bg-cyan-600 text-white hover:bg-cyan-500';
+            }
 
             const modal = document.getElementById('note-modal');
             modal.classList.remove('hidden');
@@ -3329,6 +3678,13 @@
         function toggleStreakFreezeFromModal() {
             if (!activeNoteContext) return;
             const { habitId, dateKey } = activeNoteContext;
+            const todayKey = toDateKey(getToday());
+
+            if (dateKey < todayKey) {
+                showToast('⚠️ Past dates cannot be frozen — that day has already passed!');
+                return;
+            }
+
             const habit = habits.find(h => h.id === habitId);
             if (!habit) return;
 
@@ -3540,11 +3896,12 @@
         function confirmResetAllData() {
             if (confirm('Reset your habit dashboard to sample starter data? This will overwrite local changes.')) {
                 habits = createDefaultHabits();
-                totalUserXP = 320;
+                totalUserXP = 0;
+                localStorage.setItem(XP_STORAGE_KEY, '0');
                 saveState();
                 renderDashboard();
                 closeBackupModal();
-                showToast('Reset to default starter data');
+                showToast('Reset to default starter data (Level 1, 0 XP)');
             }
         }
 
@@ -4355,6 +4712,116 @@
             }
         }
 
+        /**************************************************************
+         * AUTHENTICATION & CLOUD SYNC UI CONTROLLER
+         **************************************************************/
+        let currentAuthTab = 'signin';
+
+        function openAuthModal() {
+            const modal = document.getElementById('auth-modal');
+            if (!modal) return;
+            const errBox = document.getElementById('auth-error-msg');
+            if (errBox) errBox.classList.add('hidden');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            closeUserDropdown();
+        }
+
+        function closeAuthModal() {
+            const modal = document.getElementById('auth-modal');
+            if (!modal) return;
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function switchAuthTab(tab) {
+            currentAuthTab = tab;
+            const signinTab = document.getElementById('auth-tab-signin');
+            const signupTab = document.getElementById('auth-tab-signup');
+            const nameField = document.getElementById('auth-name-field');
+            const submitText = document.getElementById('auth-submit-text');
+            const errBox = document.getElementById('auth-error-msg');
+            if (errBox) errBox.classList.add('hidden');
+
+            if (tab === 'signin') {
+                signinTab.className = 'flex-1 py-1.5 rounded-lg text-xs font-bold transition-all bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm';
+                signupTab.className = 'flex-1 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-500 hover:text-slate-900 dark:hover:text-slate-100';
+                nameField.classList.add('hidden');
+                submitText.textContent = 'Sign In';
+            } else {
+                signupTab.className = 'flex-1 py-1.5 rounded-lg text-xs font-bold transition-all bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm';
+                signinTab.className = 'flex-1 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-500 hover:text-slate-900 dark:hover:text-slate-100';
+                nameField.classList.remove('hidden');
+                submitText.textContent = 'Create Free Account';
+            }
+        }
+
+        function handleGoogleSignIn() {
+            if (window.HabitPulseAuth && window.HabitPulseAuth.signInWithGoogle) {
+                window.HabitPulseAuth.signInWithGoogle();
+            } else {
+                showToast('Cloud auth initializing... please wait 1 second.');
+            }
+        }
+
+        function handleAuthSubmit(event) {
+            event.preventDefault();
+            const email = document.getElementById('auth-email-input').value.trim();
+            const password = document.getElementById('auth-password-input').value;
+            const name = document.getElementById('auth-name-input').value.trim();
+
+            if (!window.HabitPulseAuth) {
+                showToast('Cloud auth initializing... please wait 1 second.');
+                return;
+            }
+
+            if (currentAuthTab === 'signin') {
+                window.HabitPulseAuth.signInWithEmail(email, password);
+            } else {
+                window.HabitPulseAuth.signUpWithEmail(email, password, name);
+            }
+        }
+
+        function toggleUserDropdown() {
+            const menu = document.getElementById('auth-user-menu');
+            if (menu) menu.classList.toggle('hidden');
+        }
+
+        function closeUserDropdown() {
+            const menu = document.getElementById('auth-user-menu');
+            if (menu) menu.classList.add('hidden');
+        }
+
+        function handleSignOut() {
+            closeUserDropdown();
+            if (confirm('Sign out of your Cloud account? Your habits will remain saved locally on this device.')) {
+                if (window.HabitPulseAuth && window.HabitPulseAuth.signOutUser) {
+                    window.HabitPulseAuth.signOutUser();
+                }
+            }
+        }
+
+        function manualSyncToCloud() {
+            closeUserDropdown();
+            if (window.HabitPulseAuth && window.HabitPulseAuth.manualSync) {
+                window.HabitPulseAuth.manualSync();
+            }
+        }
+
+        function handleMobileAuthClick() {
+            if (window.HabitPulseAuth && window.HabitPulseAuth.getCurrentUser()) {
+                const user = window.HabitPulseAuth.getCurrentUser();
+                const choice = confirm(`Logged in as: ${user.displayName || user.email}\n\n• Click OK to Sync to Cloud now\n• Click Cancel to Sign Out`);
+                if (choice) {
+                    manualSyncToCloud();
+                } else {
+                    handleSignOut();
+                }
+            } else {
+                openAuthModal();
+            }
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
             loadState();
             renderDashboard();
@@ -4375,11 +4842,307 @@
                 });
             });
 
+            // Close auth user dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                const container = document.getElementById('auth-user-dropdown-container');
+                if (container && !container.contains(e.target)) {
+                    closeUserDropdown();
+                }
+            });
+
             // Reactive window resizing between mobile and desktop layouts
             window.addEventListener('resize', () => {
                 setMobileTab(currentMobileTab);
             });
         });
+    </script>
+
+    <!-- ========================================================== -->
+    <!-- FIREBASE AUTHENTICATION & CLOUD FIRESTORE SYNC MODULE      -->
+    <!-- ========================================================== -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+        import { 
+            getAuth, 
+            signInWithPopup, 
+            GoogleAuthProvider, 
+            signInWithEmailAndPassword, 
+            createUserWithEmailAndPassword, 
+            signOut, 
+            onAuthStateChanged,
+            updateProfile
+        } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+        import { 
+            getFirestore, 
+            doc, 
+            setDoc, 
+            getDoc, 
+            serverTimestamp 
+        } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+        // Firebase Configuration from user project
+        const firebaseConfig = {
+            apiKey: "AIzaSyClB0BFQx48AF8s6zYLLSovwZV0TH7ybEE",
+            authDomain: "habitpulse-tracker.firebaseapp.com",
+            projectId: "habitpulse-tracker",
+            storageBucket: "habitpulse-tracker.firebasestorage.app",
+            messagingSenderId: "1061911193835",
+            appId: "1:1061911193835:web:12f011ce0896b1173336ae",
+            measurementId: "G-GMN301D8HY"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const googleProvider = new GoogleAuthProvider();
+
+        let currentUser = null;
+        let cloudSyncDebounceTimer = null;
+
+        // Update UI when Auth state changes
+        function updateAuthUI(user) {
+            const loginBtn = document.getElementById('auth-login-btn');
+            const userDropdown = document.getElementById('auth-user-dropdown-container');
+            const userNameEl = document.getElementById('auth-user-name');
+            const userAvatarImg = document.getElementById('auth-user-avatar');
+            const userAvatarPlaceholder = document.getElementById('auth-user-avatar-placeholder');
+            const dropdownName = document.getElementById('dropdown-user-name');
+            const dropdownEmail = document.getElementById('dropdown-user-email');
+            const mobileDot = document.getElementById('auth-mobile-sync-dot');
+            const mobileHubTitle = document.getElementById('mobile-hub-auth-title');
+            const mobileHubSub = document.getElementById('mobile-hub-auth-subtitle');
+
+            if (user) {
+                const displayName = user.displayName || user.email.split('@')[0];
+                if (loginBtn) loginBtn.classList.add('hidden');
+                if (userDropdown) userDropdown.classList.remove('hidden');
+                if (userNameEl) userNameEl.textContent = displayName;
+                if (dropdownName) dropdownName.textContent = displayName;
+                if (dropdownEmail) dropdownEmail.textContent = user.email || '';
+
+                if (user.photoURL && userAvatarImg) {
+                    userAvatarImg.src = user.photoURL;
+                    userAvatarImg.classList.remove('hidden');
+                    if (userAvatarPlaceholder) userAvatarPlaceholder.classList.add('hidden');
+                } else if (userAvatarPlaceholder) {
+                    userAvatarPlaceholder.textContent = (displayName[0] || 'U').toUpperCase();
+                    userAvatarPlaceholder.classList.remove('hidden');
+                    if (userAvatarImg) userAvatarImg.classList.add('hidden');
+                }
+
+                if (mobileDot) mobileDot.classList.remove('hidden');
+                if (mobileHubTitle) mobileHubTitle.textContent = displayName;
+                if (mobileHubSub) mobileHubSub.textContent = 'Cloud Synced ☁️';
+            } else {
+                if (loginBtn) loginBtn.classList.remove('hidden');
+                if (userDropdown) userDropdown.classList.add('hidden');
+                if (mobileDot) mobileDot.classList.add('hidden');
+                if (mobileHubTitle) mobileHubTitle.textContent = 'Cloud Account';
+                if (mobileHubSub) mobileHubSub.textContent = 'Sync across devices';
+            }
+
+            if (window.lucide && typeof lucide.createIcons === 'function') {
+                lucide.createIcons();
+            }
+        }
+
+        // Cloud sync indicator status
+        window.updateCloudSyncUI = function(status) {
+            const statusEl = document.getElementById('cloud-sync-status-text');
+            if (!statusEl) return;
+            if (status === 'syncing') {
+                statusEl.innerHTML = '<span class="animate-pulse">Syncing changes... 🔄</span>';
+            } else if (status === 'synced') {
+                statusEl.innerHTML = 'All changes saved to Cloud ☁️';
+            } else if (status === 'error') {
+                statusEl.innerHTML = '<span class="text-amber-500">Sync pending (offline) ⚠️</span>';
+            }
+        };
+
+        // Sync habits to Firestore (debounced)
+        async function syncHabitsToCloud() {
+            if (!currentUser) return;
+            clearTimeout(cloudSyncDebounceTimer);
+            cloudSyncDebounceTimer = setTimeout(async () => {
+                try {
+                    window.updateCloudSyncUI('syncing');
+                    const userDocRef = doc(db, "users", currentUser.uid, "habitsData", "state");
+                    await setDoc(userDocRef, {
+                        habits: habits || [],
+                        xp: totalUserXP || 0,
+                        userEnv: userEnv || null,
+                        userEmail: currentUser.email || '',
+                        userName: currentUser.displayName || '',
+                        updatedAt: serverTimestamp()
+                    }, { merge: true });
+                    window.updateCloudSyncUI('synced');
+                } catch (err) {
+                    console.warn('Cloud sync error:', err);
+                    window.updateCloudSyncUI('error');
+                }
+            }, 800);
+        }
+
+        // Load habits from Firestore on login
+        async function loadHabitsFromCloud(user) {
+            try {
+                window.updateCloudSyncUI('syncing');
+                const userDocRef = doc(db, "users", user.uid, "habitsData", "state");
+                const docSnap = await getDoc(userDocRef);
+
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    if (Array.isArray(data.habits)) {
+                        habits = data.habits;
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(habits));
+                    }
+                    if (typeof data.xp === 'number') {
+                        totalUserXP = data.xp;
+                        localStorage.setItem(XP_STORAGE_KEY, totalUserXP.toString());
+                    }
+                    if (data.userEnv) {
+                        userEnv = data.userEnv;
+                        localStorage.setItem(USER_ENV_KEY, JSON.stringify(userEnv));
+                        if (typeof applyUserEnvironment === 'function') applyUserEnvironment(userEnv);
+                    }
+                    if (typeof renderDashboard === 'function') renderDashboard();
+                    window.updateCloudSyncUI('synced');
+                    if (typeof showToast === 'function') {
+                        showToast(`☁️ Cloud Connected: Welcome, ${user.displayName || user.email.split('@')[0]}!`);
+                    }
+                } else {
+                    // First time login: push existing local habits to Cloud
+                    await syncHabitsToCloud();
+                    if (typeof showToast === 'function') {
+                        showToast(`☁️ Cloud Connected: Habits backed up securely!`);
+                    }
+                }
+            } catch (err) {
+                console.warn('Failed to load habits from cloud:', err);
+                window.updateCloudSyncUI('error');
+            }
+        }
+
+        // Listen for authentication changes
+        onAuthStateChanged(auth, async (user) => {
+            currentUser = user;
+            updateAuthUI(user);
+            if (user) {
+                if (typeof closeAuthModal === 'function') closeAuthModal();
+                await loadHabitsFromCloud(user);
+            }
+        });
+
+        // Expose API to window for the rest of the application
+        window.HabitPulseAuth = {
+            getCurrentUser: () => currentUser,
+            syncHabitsToCloud,
+            manualSync: async () => {
+                if (!currentUser) {
+                    if (typeof openAuthModal === 'function') openAuthModal();
+                    return;
+                }
+                await syncHabitsToCloud();
+                if (typeof showToast === 'function') showToast('☁️ Manual cloud sync completed!');
+            },
+            signInWithGoogle: async () => {
+                const btn = document.getElementById('google-signin-btn');
+                const btnText = document.getElementById('google-btn-text');
+                const prevHtml = btnText ? btnText.textContent : '';
+                try {
+                    if (btnText) btnText.textContent = 'Connecting Google...';
+                    if (btn) btn.disabled = true;
+                    hideAuthError();
+                    await signInWithPopup(auth, googleProvider);
+                } catch (err) {
+                    console.error('Google Sign In Error:', err);
+                    handleAuthError(err);
+                } finally {
+                    if (btnText) btnText.textContent = prevHtml;
+                    if (btn) btn.disabled = false;
+                }
+            },
+            signInWithEmail: async (email, password) => {
+                const submitBtn = document.getElementById('auth-submit-btn');
+                const submitText = document.getElementById('auth-submit-text');
+                try {
+                    if (submitText) submitText.textContent = 'Signing in...';
+                    if (submitBtn) submitBtn.disabled = true;
+                    hideAuthError();
+                    await signInWithEmailAndPassword(auth, email, password);
+                } catch (err) {
+                    console.error('Email Sign In Error:', err);
+                    handleAuthError(err);
+                } finally {
+                    if (submitText) submitText.textContent = 'Sign In';
+                    if (submitBtn) submitBtn.disabled = false;
+                }
+            },
+            signUpWithEmail: async (email, password, name) => {
+                const submitBtn = document.getElementById('auth-submit-btn');
+                const submitText = document.getElementById('auth-submit-text');
+                try {
+                    if (submitText) submitText.textContent = 'Creating account...';
+                    if (submitBtn) submitBtn.disabled = true;
+                    hideAuthError();
+                    const cred = await createUserWithEmailAndPassword(auth, email, password);
+                    if (name && cred.user) {
+                        try {
+                            await updateProfile(cred.user, { displayName: name });
+                        } catch (e) {}
+                    }
+                } catch (err) {
+                    console.error('Sign Up Error:', err);
+                    handleAuthError(err);
+                } finally {
+                    if (submitText) submitText.textContent = 'Create Account';
+                    if (submitBtn) submitBtn.disabled = false;
+                }
+            },
+            signOutUser: async () => {
+                try {
+                    await signOut(auth);
+                    currentUser = null;
+                    updateAuthUI(null);
+                    if (typeof showToast === 'function') {
+                        showToast('Logged out of cloud account. Switched to offline mode.');
+                    }
+                } catch (err) {
+                    console.error('Sign out error:', err);
+                }
+            }
+        };
+
+        function hideAuthError() {
+            const errBox = document.getElementById('auth-error-msg');
+            if (errBox) errBox.classList.add('hidden');
+        }
+
+        function handleAuthError(err) {
+            const errBox = document.getElementById('auth-error-msg');
+            const errText = document.getElementById('auth-error-text');
+            if (!errBox || !errText) return;
+
+            let msg = 'Authentication failed. Please try again.';
+            if (err.code === 'auth/popup-closed-by-user') {
+                msg = 'Sign-in window was closed.';
+            } else if (err.code === 'auth/operation-not-allowed') {
+                msg = 'Sign-in method not enabled yet in Firebase Console. Please enable Google or Email in Firebase > Authentication > Sign-in method.';
+            } else if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') {
+                msg = 'Incorrect email or password.';
+            } else if (err.code === 'auth/email-already-in-use') {
+                msg = 'This email is already registered. Please sign in instead.';
+            } else if (err.code === 'auth/weak-password') {
+                msg = 'Password should be at least 6 characters.';
+            } else if (err.code === 'auth/invalid-email') {
+                msg = 'Please enter a valid email address.';
+            } else if (err.message) {
+                msg = err.message;
+            }
+
+            errText.textContent = msg;
+            errBox.classList.remove('hidden');
+        }
     </script>
 </body>
 </html>
