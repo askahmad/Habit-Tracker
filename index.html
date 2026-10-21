@@ -325,7 +325,7 @@
                             </button>
                             <button onclick="switchAccountToMyEmail()" class="w-full text-left px-2.5 py-1.5 rounded-xl text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 flex items-center gap-2 transition-colors">
                                 <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
-                                <span>Switch / Apne Email Se Login</span>
+                                <span>Switch Account / Sign In</span>
                             </button>
                             <button onclick="handleSignOut()" class="w-full text-left px-2.5 py-1.5 rounded-xl text-xs font-medium text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 flex items-center gap-2 transition-colors">
                                 <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
@@ -1375,10 +1375,10 @@
                 </div>
                 <div>
                     <h4 class="font-bold text-slate-900 dark:text-white text-xs leading-snug">
-                        ⚡ Login ya Sign Up karein taake aapka data LIVE save ho sake!
+                        ⚡ Sign in or create an account to save your habits live in the Cloud!
                     </h4>
                     <p class="text-[11px] text-slate-600 dark:text-slate-300 mt-1 leading-relaxed">
-                        Aapke tamam habits, streaks, daily reflections aur XP real-time cloud par live save honge. Kisi bhi phone ya laptop par apna account open karke wahi se seamlessly continue karein!
+                        All your daily habits, streaks, reflections, badges, and XP are saved automatically in real-time. Open your account on any phone, tablet, or PC to seamlessly continue your progress!
                     </p>
                 </div>
                 <div class="grid grid-cols-2 gap-2 pt-2 border-t border-indigo-500/15 text-[10px] text-slate-700 dark:text-slate-300 font-medium">
@@ -1438,12 +1438,12 @@
             <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="space-y-3">
                 <div id="auth-name-field" class="hidden">
                     <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Full Name</label>
-                    <input type="text" id="auth-name-input" placeholder="Apna naam (e.g. Ahmad Khan)" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    <input type="text" id="auth-name-input" placeholder="e.g. John Doe" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                 </div>
 
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Email Address</label>
-                    <input type="email" id="auth-email-input" required placeholder="Apna real email (e.g. ahmadkha8143@gmail.com)" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    <input type="email" id="auth-email-input" required placeholder="you@example.com" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                 </div>
 
                 <div>
@@ -1471,21 +1471,6 @@
                     <span>100% Free Lifetime Live Cloud Storage</span>
                 </div>
                 <p>Secured with end-to-end user privacy. Your habit data is private, encrypted, and stays synced across any device you open.</p>
-            </div>
-
-            <!-- Developer / Custom Firebase Project Settings (Optional) -->
-            <div class="pt-1 border-t border-slate-100 dark:border-slate-800 text-center">
-                <button type="button" onclick="toggleFirebaseConfigBox()" class="text-[10px] text-slate-400 hover:text-indigo-500 transition-colors inline-flex items-center gap-1">
-                    <i data-lucide="settings" class="w-3 h-3"></i>
-                    <span>Custom Firebase Config (Optional)</span>
-                </button>
-                <div id="firebase-config-box" class="hidden mt-2 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 text-left space-y-2 border border-slate-200 dark:border-slate-700">
-                    <label class="block text-[10px] font-bold text-slate-600 dark:text-slate-400">Custom Firebase JSON or API Key:</label>
-                    <textarea id="custom-firebase-cfg-input" rows="2" placeholder='{"apiKey": "...", "projectId": "..."}' class="w-full text-[10px] font-mono p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-1 focus:ring-indigo-500 text-slate-800 dark:text-slate-200"></textarea>
-                    <div class="flex items-center justify-end gap-2">
-                        <button type="button" onclick="saveCustomFirebaseConfig()" class="px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-semibold">Save Config</button>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -4892,7 +4877,7 @@
             setTimeout(() => {
                 openAuthModal('signin');
                 if (typeof showToast === 'function') {
-                    showToast('Apna personal email aur password enter karein ✍️');
+                    showToast('Please enter your email and password to sign in ✍️');
                 }
             }, 250);
         }
@@ -4915,24 +4900,6 @@
                 }
             } else {
                 openAuthModal('signup');
-            }
-        }
-
-        function toggleFirebaseConfigBox() {
-            const box = document.getElementById('firebase-config-box');
-            if (box) box.classList.toggle('hidden');
-        }
-
-        function saveCustomFirebaseConfig() {
-            const input = document.getElementById('custom-firebase-cfg-input');
-            if (!input || !input.value.trim()) return;
-            try {
-                const parsed = JSON.parse(input.value.trim());
-                localStorage.setItem('habitpulse_custom_firebase_config', JSON.stringify(parsed));
-                alert('Custom Firebase configuration saved! Reloading to connect...');
-                window.location.reload();
-            } catch (e) {
-                alert('Invalid JSON. Please paste a valid Firebase config object (e.g. {"apiKey": "...", "projectId": "..."})');
             }
         }
 
@@ -5328,7 +5295,7 @@
                     let enteredName = nameInput ? nameInput.value.trim() : '';
 
                     if (!enteredEmail) {
-                        const promptEmail = prompt('Apna Google Account / Gmail enter karein taake data aapke real account par live save ho sake:', '');
+                        const promptEmail = prompt('Enter your Google Account email (e.g. name@gmail.com) to sync habits live:', '');
                         if (!promptEmail || !promptEmail.trim()) {
                             if (btnText) btnText.textContent = prevHtml;
                             if (btn) btn.disabled = false;
@@ -5541,7 +5508,7 @@
                     if (typeof playSound === 'function') playSound('victory');
                     if (typeof triggerConfetti === 'function') triggerConfetti();
                     if (typeof showToast === 'function') {
-                        showToast(`🎉 Account Created! Welcome, ${currentUser.displayName}! Tamam data LIVE cloud par save ho raha hai ☁️`);
+                        showToast(`🎉 Account Created! Welcome, ${currentUser.displayName}! All data is now saving LIVE to Cloud ☁️`);
                     }
                     await syncHabitsToCloud();
                 } catch (err) {
