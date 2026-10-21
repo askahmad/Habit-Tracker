@@ -305,7 +305,7 @@
                             <img id="auth-user-avatar" src="" alt="Avatar" class="w-5 h-5 rounded-full object-cover hidden">
                             <div id="auth-user-avatar-placeholder" class="w-5 h-5 rounded-full bg-gradient-to-tr from-indigo-500 to-violet-500 text-white flex items-center justify-center font-bold text-[10px] uppercase">U</div>
                             <span id="auth-user-name" class="font-bold text-slate-800 dark:text-slate-100 truncate max-w-[90px] sm:max-w-[120px]">User</span>
-                            <span class="w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-emerald-500/20" title="Cloud Synced"></span>
+                            <span id="auth-user-sync-dot" class="w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-emerald-500/20" title="Cloud Synced"></span>
                             <i data-lucide="chevron-down" class="w-3 h-3 text-slate-400"></i>
                         </button>
 
@@ -5099,28 +5099,58 @@
             }
         }
 
-        // Cloud sync indicator status
+        // Cloud sync indicator status (supports offline, pending, syncing, synced)
         window.updateCloudSyncUI = function(status) {
             const statusEl = document.getElementById('cloud-sync-status-text');
-            if (!statusEl) return;
+            const dotEl = document.getElementById('auth-user-sync-dot');
+            const mobileDot = document.getElementById('auth-mobile-sync-dot');
+
             if (status === 'syncing') {
-                statusEl.innerHTML = '<span class="animate-pulse">Live Cloud Syncing... 🔄</span>';
+                if (statusEl) statusEl.innerHTML = '<span class="animate-pulse text-indigo-500 font-semibold">Live Cloud Syncing... 🔄</span>';
+                if (dotEl) {
+                    dotEl.className = 'w-2 h-2 rounded-full bg-amber-400 animate-pulse ring-2 ring-amber-400/40';
+                    dotEl.title = 'Syncing habits live to cloud...';
+                }
+                if (mobileDot) {
+                    mobileDot.className = 'absolute top-1 right-1 w-2 h-2 rounded-full bg-amber-400 animate-pulse ring-1 ring-white dark:ring-slate-900';
+                }
             } else if (status === 'synced') {
-                statusEl.innerHTML = 'All changes saved LIVE to Cloud ☁️';
+                if (statusEl) statusEl.innerHTML = 'All changes saved LIVE to Cloud ☁️';
+                if (dotEl) {
+                    dotEl.className = 'w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-emerald-500/20';
+                    dotEl.title = 'Live Cloud Synced';
+                }
+                if (mobileDot) {
+                    mobileDot.className = 'absolute top-1 right-1 w-2 h-2 rounded-full bg-emerald-500 ring-1 ring-white dark:ring-slate-900';
+                }
+            } else if (status === 'offline-pending' || status === 'offline') {
+                if (statusEl) statusEl.innerHTML = '<span class="text-amber-500 font-medium">Offline (Saved locally, auto-syncs on reconnect) 📴</span>';
+                if (dotEl) {
+                    dotEl.className = 'w-2 h-2 rounded-full bg-amber-500 ring-2 ring-amber-500/30';
+                    dotEl.title = 'Offline: Changes saved locally, will sync when net returns';
+                }
+                if (mobileDot) {
+                    mobileDot.className = 'absolute top-1 right-1 w-2 h-2 rounded-full bg-amber-500 ring-1 ring-white dark:ring-slate-900';
+                }
             } else if (status === 'error') {
-                statusEl.innerHTML = '<span class="text-amber-500">Sync pending (offline) ⚠️</span>';
+                if (statusEl) statusEl.innerHTML = '<span class="text-amber-500">Sync pending (offline) ⚠️</span>';
+                if (dotEl) {
+                    dotEl.className = 'w-2 h-2 rounded-full bg-amber-500 ring-2 ring-amber-500/30';
+                    dotEl.title = 'Sync pending';
+                }
+                if (mobileDot) {
+                    mobileDot.className = 'absolute top-1 right-1 w-2 h-2 rounded-full bg-amber-500 ring-1 ring-white dark:ring-slate-900';
+                }
             }
         };
 
-        // Sync habits to Live Cloud (debounced)
+        // Sync habits to Live Cloud (debounced with offline queuing)
         async function syncHabitsToCloud() {
             if (!currentUser) return;
             clearTimeout(cloudSyncDebounceTimer);
             cloudSyncDebounceTimer = setTimeout(async () => {
+                // 1. Always backup locally to user profile immediately
                 try {
-                    window.updateCloudSyncUI('syncing');
-
-                    // 1. Live Cloud User Account save
                     const users = getCloudUsers();
                     const emailKey = (currentUser.email || currentUser.uid).toLowerCase();
                     if (!users[emailKey]) {
@@ -5136,30 +5166,84 @@
                     users[emailKey].userEnv = userEnv || null;
                     users[emailKey].updatedAt = new Date().toISOString();
                     saveCloudUsers(users);
+                } catch (localSaveErr) {
+                    console.warn('Local cloud storage write note:', localSaveErr);
+                }
 
-                    // 2. Firebase Firestore live sync (if connected with valid credentials)
+                // If device is offline, flag pending sync and exit safely
+                if (!navigator.onLine) {
+                    localStorage.setItem('habitpulse_pending_sync', 'true');
+                    window.updateCloudSyncUI('offline-pending');
+                    return;
+                }
+
+                // 2. Device is online: Push live changes to Cloud Firestore
+                try {
+                    window.updateCloudSyncUI('syncing');
+
                     if (db && !isPlaceholderKey) {
-                        try {
-                            const userDocRef = doc(db, "users", currentUser.uid, "habitsData", "state");
-                            await setDoc(userDocRef, {
-                                habits: habits || [],
-                                xp: totalUserXP || 0,
-                                userEnv: userEnv || null,
-                                userEmail: currentUser.email || '',
-                                userName: currentUser.displayName || '',
-                                updatedAt: serverTimestamp()
-                            }, { merge: true });
-                        } catch (fbErr) {
-                            console.warn('Firestore live sync note:', fbErr.message);
-                        }
+                        const userDocRef = doc(db, "users", currentUser.uid, "habitsData", "state");
+                        await setDoc(userDocRef, {
+                            habits: habits || [],
+                            xp: totalUserXP || 0,
+                            userEnv: userEnv || null,
+                            userEmail: currentUser.email || '',
+                            userName: currentUser.displayName || '',
+                            updatedAt: serverTimestamp()
+                        }, { merge: true });
                     }
 
+                    localStorage.removeItem('habitpulse_pending_sync');
                     window.updateCloudSyncUI('synced');
                 } catch (err) {
-                    console.warn('Cloud sync error:', err);
-                    window.updateCloudSyncUI('error');
+                    console.warn('Cloud sync network note (queued for retry):', err);
+                    localStorage.setItem('habitpulse_pending_sync', 'true');
+                    window.updateCloudSyncUI('offline-pending');
                 }
-            }, 500);
+            }, 400);
+        }
+
+        // Automatic Auto-Sync when Internet Connection is Restored
+        window.addEventListener('online', async () => {
+            const hasPending = localStorage.getItem('habitpulse_pending_sync') === 'true';
+            window.updateCloudSyncUI('syncing');
+            if (typeof showToast === 'function') {
+                showToast('🌐 Internet restored! Auto-syncing habits live to Cloud...', 2800);
+            }
+            if (currentUser) {
+                await syncHabitsToCloud();
+                if (typeof showToast === 'function') {
+                    setTimeout(() => {
+                        showToast('✅ All offline habits & streaks are now LIVE in Cloud! ☁️', 3500);
+                    }, 500);
+                }
+            } else {
+                window.updateCloudSyncUI('synced');
+            }
+        });
+
+        // Offline detector: notify user their work is safe locally
+        window.addEventListener('offline', () => {
+            window.updateCloudSyncUI('offline-pending');
+            if (typeof showToast === 'function') {
+                showToast('📴 Offline Mode: All habit changes are saved safely on this device!', 3500);
+            }
+        });
+
+        // Also check pending sync when tab regains focus or visibility
+        window.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible' && navigator.onLine && currentUser) {
+                if (localStorage.getItem('habitpulse_pending_sync') === 'true') {
+                    syncHabitsToCloud();
+                }
+            }
+        });
+
+        // Initial connection check on startup
+        if (!navigator.onLine) {
+            window.updateCloudSyncUI('offline-pending');
+        } else if (localStorage.getItem('habitpulse_pending_sync') === 'true' && currentUser) {
+            syncHabitsToCloud();
         }
 
         // Load habits from Live Cloud on login
@@ -5167,6 +5251,15 @@
             try {
                 window.updateCloudSyncUI('syncing');
                 let loaded = false;
+
+                // If user made offline changes before logging in or reconnecting, push them UP
+                if (localStorage.getItem('habitpulse_pending_sync') === 'true') {
+                    await syncHabitsToCloud();
+                    if (typeof showToast === 'function') {
+                        showToast(`☁️ Offline changes synced to your account: ${user.displayName || user.email.split('@')[0]}!`);
+                    }
+                    return;
+                }
 
                 // 1. Check Firestore first if configured with valid key
                 if (db && !isPlaceholderKey) {

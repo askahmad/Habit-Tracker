@@ -1,14 +1,18 @@
-// Service Worker for HabitPulse PWA
-const CACHE_NAME = 'habitpulse-cache-v2';
+// Service Worker for HabitPulse PWA - Offline First with Auto-Sync
+const CACHE_NAME = 'habitpulse-cache-v3';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
+  './habit_tracking_dashboard.html',
   './manifest.webmanifest',
   './icon.svg',
   'https://cdn.tailwindcss.com',
   'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap',
   'https://unpkg.com/lucide@latest',
-  'https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js'
+  'https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js',
+  'https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js',
+  'https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js',
+  'https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js'
 ];
 
 self.addEventListener('install', (event) => {
@@ -38,15 +42,21 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Network first, falling back to cache
+  // Only handle GET requests
   if (event.request.method !== 'GET') return;
 
-  // Bypass cache for Firebase authentication and Cloud Firestore endpoints
   const url = event.request.url;
-  if (url.includes('firebase') || url.includes('googleapis.com') || url.includes('identitytoolkit') || url.includes('securetoken')) {
+  // Bypass cache ONLY for live Firestore / Auth API calls, NOT the static JS library files
+  if (
+    url.includes('identitytoolkit.googleapis.com') ||
+    url.includes('securetoken.googleapis.com') ||
+    url.includes('firestore.googleapis.com') ||
+    url.includes('firebaseinstallations.googleapis.com')
+  ) {
     return;
   }
 
+  // Network first with cache fallback
   event.respondWith(
     fetch(event.request)
       .then((networkResponse) => {
@@ -58,6 +68,13 @@ self.addEventListener('fetch', (event) => {
         }
         return networkResponse;
       })
-      .catch(() => caches.match(event.request))
+      .catch(() => {
+        return caches.match(event.request).then((cachedResponse) => {
+          if (cachedResponse) return cachedResponse;
+          if (event.request.mode === 'navigate') {
+            return caches.match('./index.html');
+          }
+        });
+      })
   );
 });
