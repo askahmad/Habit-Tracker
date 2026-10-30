@@ -4,6 +4,7 @@ import {
   ArrowRight, ShieldCheck, Sparkles, KeyRound, RefreshCw, Zap
 } from 'lucide-react';
 import { playSound, triggerConfetti } from '../../utils/audio';
+import { sendVerificationOtpEmail, getEmailConfig, saveEmailConfig, isEmailConfigured } from '../../utils/mailer';
 
 export default function AuthScreen({ onAuthenticated, soundEnabled = true }) {
   const [tab, setTab] = useState('signin'); // 'signin' | 'signup' | 'verify'
@@ -19,6 +20,44 @@ export default function AuthScreen({ onAuthenticated, soundEnabled = true }) {
   const [verificationCode, setVerificationCode] = useState(['', '', '', '', '', '']);
   const [expectedCode, setExpectedCode] = useState('784921');
   const [pendingUser, setPendingUser] = useState(null);
+  const [resendTimer, setResendTimer] = useState(45);
+  const [canResend, setCanResend] = useState(false);
+  const [showEmailConfigModal, setShowEmailConfigModal] = useState(false);
+  const [cfgServiceId, setCfgServiceId] = useState(() => getEmailConfig().serviceId);
+  const [cfgTemplateId, setCfgTemplateId] = useState(() => getEmailConfig().templateId);
+  const [cfgPublicKey, setCfgPublicKey] = useState(() => getEmailConfig().publicKey);
+
+  // Countdown timer for resending code
+  React.useEffect(() => {
+    let interval = null;
+    if (tab === 'verify' && resendTimer > 0) {
+      interval = setInterval(() => {
+        setResendTimer((prev) => prev - 1);
+      }, 1000);
+    } else if (resendTimer === 0) {
+      setCanResend(true);
+      if (interval) clearInterval(interval);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [tab, resendTimer]);
+
+  const handleResendCode = async () => {
+    if (!canResend) return;
+    const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    setExpectedCode(newOtp);
+    setResendTimer(45);
+    setCanResend(false);
+    setErrorMsg('');
+    playSound('click', soundEnabled);
+
+    const recipient = pendingUser?.email || email;
+    const res = await sendVerificationOtpEmail(recipient, pendingUser?.name, newOtp);
+    if (!res.success) {
+      setErrorMsg(`Could not dispatch email: ${res.error || 'Please check configuration'}`);
+    }
+  };
 
   // Switch tabs
   const handleTabSwitch = (newTab) => {
@@ -120,27 +159,31 @@ export default function AuthScreen({ onAuthenticated, soundEnabled = true }) {
     }
 
     setIsLoading(true);
-    setTimeout(() => {
+    const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    setExpectedCode(generatedOtp);
+
+    const newUser = {
+      uid: 'usr_' + Date.now(),
+      name: cleanName,
+      email: cleanEmail,
+      password: password,
+      avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(cleanName)}&backgroundColor=4f46e5`,
+      isVerified: false,
+      createdAt: new Date().toISOString()
+    };
+
+    sendVerificationOtpEmail(cleanEmail, cleanName, generatedOtp).then((res) => {
       setIsLoading(false);
-      // Generate a realistic 6-digit OTP code for verification
-      const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
-      setExpectedCode(generatedOtp);
-
-      const newUser = {
-        uid: 'usr_' + Date.now(),
-        name: cleanName,
-        email: cleanEmail,
-        password: password,
-        avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(cleanName)}&backgroundColor=4f46e5`,
-        isVerified: false,
-        createdAt: new Date().toISOString()
-      };
-
       setPendingUser(newUser);
       setTab('verify');
+      setResendTimer(45);
+      setCanResend(false);
       setVerificationCode(['', '', '', '', '', '']);
       playSound('click', soundEnabled);
-    }, 450);
+      if (!res.success) {
+        setErrorMsg(`Note: Email dispatch issue (${res.error}). Verify your EmailJS keys.`);
+      }
+    });
   };
 
   // 3. OTP VERIFICATION
@@ -461,31 +504,45 @@ export default function AuthScreen({ onAuthenticated, soundEnabled = true }) {
               <div className="w-14 h-14 mx-auto rounded-2xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400 mb-3 shadow-inner">
                 <ShieldCheck className="w-7 h-7" />
               </div>
-              <h3 className="font-extrabold text-base text-white">Enter 6-Digit Code</h3>
-              <p className="text-xs text-slate-400 mt-1">
-                A verification code has been dispatched to{' '}
-                <strong className="text-indigo-400">{pendingUser?.email || email}</strong>
+              <h3 className="font-extrabold text-base text-white">Check Your Email</h3>
+              <p className="text-xs text-slate-400 mt-1.5 leading-relaxed">
+                A 6-digit verification code has been dispatched to:
               </p>
-
-              {/* Demo test helper pill */}
-              <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-[11px] font-mono">
-                <span>Code:</span>
-                <span className="font-bold tracking-widest text-white">{expectedCode}</span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setVerificationCode(expectedCode.split(''));
-                    playSound('click', soundEnabled);
-                  }}
-                  className="ml-1 text-[10px] text-amber-400 underline font-sans"
-                >
-                  Auto-fill
-                </button>
-              </div>
+              <p className="text-xs font-bold text-indigo-400 mt-0.5">
+                {pendingUser?.email || email}
+              </p>
+              <p className="text-[11px] text-slate-500 mt-1">
+                Please check your inbox or spam folder and enter the code below.
+              </p>
             </div>
 
+            {/* Email configuration helper if keys not yet added */}
+            {!isEmailConfigured() && (
+              <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-left text-xs space-y-1.5 animate-slide-up">
+                <div className="flex items-center justify-between font-bold text-amber-400">
+                  <span className="flex items-center gap-1.5">
+                    <span>⚠️</span>
+                    <span>EmailJS Not Connected</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setShowEmailConfigModal(true)}
+                    className="px-2 py-0.5 rounded-lg bg-indigo-600 text-white text-[11px] font-bold hover:bg-indigo-500 transition-colors"
+                  >
+                    Enter Keys
+                  </button>
+                </div>
+                <p className="text-[11px] text-slate-300 leading-relaxed">
+                  Real emails require 3 free keys from EmailJS. Click <strong>Enter Keys</strong> or add them to <code>.env</code>.
+                </p>
+                <p className="text-[10px] text-slate-400">
+                  Temporary test code: <span className="font-mono font-bold text-amber-300 select-all">{expectedCode}</span>
+                </p>
+              </div>
+            )}
+
             {/* 6 Digit Inputs */}
-            <div className="flex justify-center gap-2 sm:gap-2.5 my-2">
+            <div className="flex justify-center gap-2 sm:gap-2.5 my-3">
               {verificationCode.map((digit, idx) => (
                 <input
                   key={idx}
@@ -501,6 +558,22 @@ export default function AuthScreen({ onAuthenticated, soundEnabled = true }) {
               ))}
             </div>
 
+            <div className="text-center">
+              {canResend ? (
+                <button
+                  type="button"
+                  onClick={handleResendCode}
+                  className="text-xs font-semibold text-indigo-400 hover:text-indigo-300 underline transition-colors"
+                >
+                  Didn't receive the email? Resend Code
+                </button>
+              ) : (
+                <span className="text-xs text-slate-500">
+                  Resend code in <strong className="text-slate-300">{resendTimer}s</strong>
+                </span>
+              )}
+            </div>
+
             <button
               type="submit"
               disabled={isLoading}
@@ -509,7 +582,7 @@ export default function AuthScreen({ onAuthenticated, soundEnabled = true }) {
               {isLoading ? (
                 <>
                   <RefreshCw className="w-4 h-4 animate-spin" />
-                  <span>Verifying & Opening Dashboard...</span>
+                  <span>Verifying Code...</span>
                 </>
               ) : (
                 <>
@@ -550,6 +623,92 @@ export default function AuthScreen({ onAuthenticated, soundEnabled = true }) {
           <span>100% Free Forever</span>
         </span>
       </div>
+      {/* EmailJS Setup Modal */}
+      {showEmailConfigModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn">
+          <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-4 animate-slide-up text-left">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+              <h4 className="font-bold text-sm text-white flex items-center gap-2">
+                <span>📧 EmailJS Configuration</span>
+              </h4>
+              <button
+                type="button"
+                onClick={() => setShowEmailConfigModal(false)}
+                className="text-slate-400 hover:text-white text-sm"
+              >
+                ✕
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-300 leading-relaxed">
+              Paste your free EmailJS keys below to send real OTP verification emails to your Gmail inbox:
+            </p>
+
+            <div className="space-y-3">
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">
+                  Service ID (e.g. service_xxxx)
+                </label>
+                <input
+                  type="text"
+                  value={cfgServiceId}
+                  onChange={(e) => setCfgServiceId(e.target.value)}
+                  placeholder="service_..."
+                  className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white outline-none focus:border-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">
+                  Template ID (e.g. template_xxxx)
+                </label>
+                <input
+                  type="text"
+                  value={cfgTemplateId}
+                  onChange={(e) => setCfgTemplateId(e.target.value)}
+                  placeholder="template_..."
+                  className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white outline-none focus:border-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">
+                  Public Key (e.g. user_... or key_...)
+                </label>
+                <input
+                  type="text"
+                  value={cfgPublicKey}
+                  onChange={(e) => setCfgPublicKey(e.target.value)}
+                  placeholder="Public Key"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white outline-none focus:border-indigo-500"
+                />
+              </div>
+            </div>
+
+            <div className="pt-2 flex items-center justify-between">
+              <a
+                href="https://www.emailjs.com"
+                target="_blank"
+                rel="noreferrer"
+                className="text-[11px] text-indigo-400 hover:underline"
+              >
+                Get free keys at EmailJS.com →
+              </a>
+              <button
+                type="button"
+                onClick={() => {
+                  saveEmailConfig(cfgServiceId, cfgTemplateId, cfgPublicKey);
+                  setShowEmailConfigModal(false);
+                  playSound('complete', soundEnabled);
+                }}
+                className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-md"
+              >
+                Save Keys
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

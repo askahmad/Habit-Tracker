@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import {
   Flame, Plus, Target, LayoutGrid, Timer, Headphones, Share2, 
   Sparkles, Award, Volume2, VolumeX, Sun, Moon, LogOut, ChevronLeft, 
-  ChevronRight, Search, Check, CheckCheck, Mic, Calendar, ChevronDown,
-  FileText, Edit3, ShieldAlert
+  ChevronRight, Search, Check, CheckCheck, Mic, ChevronDown,
+  FileText, Edit3
 } from 'lucide-react';
 import { 
   COLOR_THEMES, STARTER_HABITS, MOTIVATION_QUOTES,
@@ -109,7 +109,7 @@ export default function Dashboard({ user, onSignOut, isDarkMode, toggleTheme, so
   const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
   // Toggle habit on a specific date
-  const handleToggleHabitDay = (habitId, dateKey, isRightClick = false) => {
+  const handleToggleHabitDay = (habitId, dateKey) => {
     const isToday = dateKey === todayKey;
     const isPast = dateKey < todayKey;
 

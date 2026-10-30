@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Play, Pause, RotateCcw, Timer, Sparkles, CheckCircle2 } from 'lucide-react';
+import { X, Play, Pause, RotateCcw, Timer } from 'lucide-react';
 import { playSound, triggerConfetti } from '../../utils/audio';
 
 export default function TimerModal({ isOpen, habits = [], selectedHabitId = null, onClose, onFinishTimer, soundEnabled = true }) {

@@ -6,7 +6,6 @@ export default function BadgesModal({ isOpen, habits = [], totalXp = 0, onClose 
   if (!isOpen) return null;
 
   // Compute unlocked status
-  let maxStreak = 0;
   let totalLogs = 0;
 
   habits.forEach((h) => {
