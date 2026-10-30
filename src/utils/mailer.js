@@ -3,7 +3,7 @@ import emailjs from '@emailjs/browser';
 // EmailJS Configuration from environment or localStorage
 export const getEmailConfig = () => {
   return {
-    serviceId: import.meta.env.VITE_EMAILJS_SERVICE_ID || localStorage.getItem('habitpulse_emailjs_service_id') || '',
+    serviceId: import.meta.env.VITE_EMAILJS_SERVICE_ID || localStorage.getItem('habitpulse_emailjs_service_id') || 'service_k1twokp',
     templateId: import.meta.env.VITE_EMAILJS_TEMPLATE_ID || localStorage.getItem('habitpulse_emailjs_template_id') || '',
     publicKey: import.meta.env.VITE_EMAILJS_PUBLIC_KEY || localStorage.getItem('habitpulse_emailjs_public_key') || '',
   };
