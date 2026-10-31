@@ -1,8 +1,8 @@
 {
-  "name": "habit-tracker",
+  "name": "habitiq",
   "version": "2.0.0",
   "type": "module",
-  "description": "HabitPulse - Daily Habit Tracker, Streak Builder & Focus Dashboard",
+  "description": "HabitIQ - Smart Daily Habit Tracker, Streak Matrix & Focus Dashboard",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

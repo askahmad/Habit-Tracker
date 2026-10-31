@@ -36,8 +36,8 @@ export async function sendVerificationOtpEmail(toEmail, toName, code) {
         to_email: toEmail,
         to_name: toName || toEmail.split('@')[0],
         otp_code: code,
-        app_name: 'HabitPulse',
-        support_email: 'support@habitpulse.io'
+        app_name: 'HabitIQ',
+        support_email: 'support@habitiq.io'
       };
 
       const res = await emailjs.send(

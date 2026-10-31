@@ -1,7 +1,7 @@
 {
-  "name": "HabitPulse — Daily Goals & Streak Tracker",
-  "short_name": "HabitPulse",
-  "description": "Interactive daily habit tracking, streak momentum, and personal consistency dashboard.",
+  "name": "HabitIQ — Smart Daily Habits & Streak Matrix",
+  "short_name": "HabitIQ",
+  "description": "Intelligent daily habit tracking, streak momentum, and personal consistency dashboard.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

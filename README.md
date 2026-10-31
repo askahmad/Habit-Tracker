@@ -1,18 +1,18 @@
-# Habit-Tracker ⚡ (React + Vite)
+# HabitIQ ⚡ (React + Vite + Firebase)
 
-**HabitPulse** is an elite, high-performance daily habits and streak-building web app engineered with **React, Vite & Tailwind CSS** for everyday personal productivity, RPG gamification, focus timer, and effortless daily consistency.
+**HabitIQ** is an elite, high-performance daily habits and streak-building web app engineered with **React, Vite, Tailwind CSS & Firebase Cloud** for intelligent personal productivity, RPG gamification, focus timer, and effortless daily consistency.
 
 ---
 
-## 🔐 Authentication & Verification Gate
+## 🔐 Authentication & Cloud Sync
 
-When you open HabitPulse:
+When you open HabitIQ:
 1. **Access Gate:** The site requires authentication before accessing the dashboard.
-2. **Sign In:** Existing users can log in with their registered email & password.
-3. **Sign Up & Identity Verification:** New users register their account, and are then presented with a **6-digit verification code screen**. After verifying the code, the user is granted access into the dashboard.
+2. **Google 1-Click Login:** Users can sign in instantly with Google.
+3. **Sign In & Sign Up:** Existing users can log in, or new users can register their account directly.
 4. **Instant One-Click Demo Access:** For rapid testing/review, a one-click demo login button is provided on the authentication screen.
-5. **Secure Local & Cloud Persistence:** User profiles, habits, and XP are securely stored per account.
-6. **Sign Out:** Users can sign out from the profile menu to lock the dashboard and return to the login/signup screen.
+5. **Real-time Firebase Cloud Persistence:** User profiles, habits, and XP are securely synced across any device.
+6. **Sign Out:** Users can sign out from the profile menu to lock the dashboard and return to the login screen.
 
 ---
 

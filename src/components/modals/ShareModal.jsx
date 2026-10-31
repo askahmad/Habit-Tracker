@@ -52,11 +52,11 @@ export default function ShareModal({ isOpen, user, habits = [], totalXp = 0, onC
 
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 20px Inter, sans-serif';
-    ctx.fillText('HabitPulse', 75, 57);
+    ctx.fillText('HabitIQ', 75, 57);
 
     ctx.fillStyle = '#818cf8';
     ctx.font = 'bold 11px Inter, sans-serif';
-    ctx.fillText('PRO STREAK PASS', w - 150, 57);
+    ctx.fillText('SMART STREAK PASS', w - 160, 57);
 
     // User Subtitle
     ctx.fillStyle = '#94a3b8';
@@ -125,7 +125,7 @@ export default function ShareModal({ isOpen, user, habits = [], totalXp = 0, onC
     if (!canvas) return;
     const url = canvas.toDataURL('image/png');
     const a = document.createElement('a');
-    a.download = `HabitPulse-${user?.name || 'Streak'}.png`;
+    a.download = `HabitIQ-${user?.name || 'Streak'}.png`;
     a.href = url;
     a.click();
   };

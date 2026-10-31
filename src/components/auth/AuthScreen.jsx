@@ -244,7 +244,7 @@ export default function AuthScreen({ onAuthenticated, soundEnabled = true }) {
     const demoUser = {
       uid: 'demo_user_1',
       name: 'Alex Rivera',
-      email: 'alex@habitpulse.io',
+      email: 'alex@habitiq.io',
       avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&h=120&q=80',
       isVerified: true
     };
@@ -266,14 +266,14 @@ export default function AuthScreen({ onAuthenticated, soundEnabled = true }) {
         </div>
         <div className="text-left">
           <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white flex items-center gap-2">
-            HabitPulse
+            Habit<span className="text-indigo-400">IQ</span>
             <span className="text-xs uppercase px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 font-bold tracking-wider">
               Cloud v2.0
             </span>
           </h1>
           <p className="text-xs text-slate-400 font-medium flex items-center gap-1.5 mt-0.5">
             <Cloud className="w-3.5 h-3.5 text-indigo-400" />
-            <span>Live Firebase Cloud Sync & Habit Tracker</span>
+            <span>Smart Daily Habit Tracker & Focus Matrix</span>
           </p>
         </div>
       </div>

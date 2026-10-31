@@ -303,7 +303,9 @@ export default function Dashboard({ user, onSignOut, isDarkMode, toggleTheme, so
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="font-extrabold text-base sm:text-lg tracking-tight">HabitPulse</span>
+                <span className="font-extrabold text-base sm:text-lg tracking-tight bg-gradient-to-r from-indigo-500 via-violet-500 to-indigo-400 bg-clip-text text-transparent">
+                  HabitIQ
+                </span>
                 <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.2 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
                   Pro
                 </span>
