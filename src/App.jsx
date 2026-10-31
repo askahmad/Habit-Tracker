@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AuthScreen from './components/auth/AuthScreen';
 import Dashboard from './components/dashboard/Dashboard';
+import { auth, signOut, onAuthStateChanged } from './firebase';
 
 export default function App() {
   // 1. User Authentication State (Auth Gate)
@@ -9,8 +10,7 @@ export default function App() {
       const savedSession = localStorage.getItem('habitpulse_active_user');
       if (savedSession) {
         const parsed = JSON.parse(savedSession);
-        // User must be verified to enter dashboard
-        if (parsed && parsed.isVerified) {
+        if (parsed && (parsed.uid || parsed.email)) {
           return parsed;
         }
       }
@@ -19,6 +19,25 @@ export default function App() {
       return null;
     }
   });
+
+  // Listen to Firebase Auth state
+  useEffect(() => {
+    if (!auth) return;
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        const formattedUser = {
+          uid: firebaseUser.uid,
+          name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'Habit Master',
+          email: firebaseUser.email,
+          avatar: firebaseUser.photoURL || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(firebaseUser.displayName || firebaseUser.email || 'User')}&backgroundColor=4f46e5`,
+          isVerified: true
+        };
+        setCurrentUser(formattedUser);
+        localStorage.setItem('habitpulse_active_user', JSON.stringify(formattedUser));
+      }
+    });
+    return () => unsubscribe();
+  }, []);
 
   // 2. Theme State (Dark / Light)
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -56,14 +75,21 @@ export default function App() {
     localStorage.setItem('habitpulse_sound', String(soundEnabled));
   }, [soundEnabled]);
 
-  // When user successfully verifies & authenticates
+  // When user successfully authenticates
   const handleAuthenticated = (userObj) => {
     setCurrentUser(userObj);
     localStorage.setItem('habitpulse_active_user', JSON.stringify(userObj));
   };
 
   // Sign out / lock
-  const handleSignOut = () => {
+  const handleSignOut = async () => {
+    try {
+      if (auth) {
+        await signOut(auth);
+      }
+    } catch (e) {
+      console.warn('Sign out error:', e);
+    }
     setCurrentUser(null);
     localStorage.removeItem('habitpulse_active_user');
   };
@@ -76,7 +102,7 @@ export default function App() {
     setSoundEnabled((prev) => !prev);
   };
 
-  // AUTH GATE: If no verified user is logged in, show AuthScreen (Login / Signup / Verification)
+  // AUTH GATE: If no user is logged in, show AuthScreen (Login / Signup)
   if (!currentUser) {
     return (
       <AuthScreen
@@ -86,7 +112,7 @@ export default function App() {
     );
   }
 
-  // Once verified, open the full Dashboard!
+  // Open the full Dashboard!
   return (
     <Dashboard
       user={currentUser}
@@ -98,4 +124,3 @@ export default function App() {
     />
   );
 }
-

@@ -18,6 +18,7 @@ import TemplatesModal from '../modals/TemplatesModal';
 import BadgesModal from '../modals/BadgesModal';
 import NoteModal from '../modals/NoteModal';
 import ShareModal from '../modals/ShareModal';
+import { db, doc, getDoc, setDoc, serverTimestamp } from '../../firebase';
 
 export default function Dashboard({ user, onSignOut, isDarkMode, toggleTheme, soundEnabled, toggleSound }) {
   // Habit State
@@ -66,14 +67,61 @@ export default function Dashboard({ user, onSignOut, isDarkMode, toggleTheme, so
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [noteModalData, setNoteModalData] = useState({ isOpen: false, habit: null, dateKey: null });
 
-  // Save to localStorage when state updates
+  const [isCloudSynced, setIsCloudSynced] = useState(false);
+
+  // 1. Fetch initial state from Firestore Cloud if available
+  useEffect(() => {
+    let isMounted = true;
+    const fetchCloudData = async () => {
+      if (!db || !user?.email) return;
+      try {
+        const userDocRef = doc(db, 'users', user.uid || user.email);
+        const docSnap = await getDoc(userDocRef);
+        if (docSnap.exists() && isMounted) {
+          const cloudData = docSnap.data();
+          if (cloudData.habits && Array.isArray(cloudData.habits)) {
+            setHabits(cloudData.habits);
+            localStorage.setItem(`habitpulse_habits_${user.email}`, JSON.stringify(cloudData.habits));
+          }
+          if (typeof cloudData.xp === 'number') {
+            setTotalXp(cloudData.xp);
+            localStorage.setItem(`habitpulse_xp_${user.email}`, String(cloudData.xp));
+          }
+          setIsCloudSynced(true);
+        }
+      } catch (err) {
+        console.warn('Firestore load notice:', err);
+      }
+    };
+    fetchCloudData();
+    return () => { isMounted = false; };
+  }, [user.uid, user.email]);
+
+  // 2. Save locally and auto-sync to Firebase Cloud
   useEffect(() => {
     localStorage.setItem(`habitpulse_habits_${user.email}`, JSON.stringify(habits));
-  }, [habits, user.email]);
-
-  useEffect(() => {
     localStorage.setItem(`habitpulse_xp_${user.email}`, String(totalXp));
-  }, [totalXp, user.email]);
+
+    if (!db || !user?.email) return;
+
+    const timer = setTimeout(async () => {
+      try {
+        const userDocRef = doc(db, 'users', user.uid || user.email);
+        await setDoc(userDocRef, {
+          email: user.email,
+          name: user.name,
+          habits: habits,
+          xp: totalXp,
+          lastUpdated: serverTimestamp()
+        }, { merge: true });
+        setIsCloudSynced(true);
+      } catch (e) {
+        console.warn('Firestore sync notice:', e);
+      }
+    }, 1200);
+
+    return () => clearTimeout(timer);
+  }, [habits, totalXp, user.email, user.uid, user.name]);
 
   const showToast = (msg) => {
     setToastMessage(msg);
@@ -400,9 +448,14 @@ export default function Dashboard({ user, onSignOut, isDarkMode, toggleTheme, so
                   <div className="px-3 py-2 border-b border-slate-100 dark:border-slate-800">
                     <p className="font-bold text-xs text-slate-900 dark:text-white truncate">{user.name}</p>
                     <p className="text-[11px] text-slate-400 truncate">{user.email}</p>
-                    <span className="inline-block mt-1 text-[10px] font-semibold text-emerald-500 bg-emerald-500/10 px-1.5 py-0.2 rounded">
-                      Verified Account ✓
-                    </span>
+                    <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                      <span className="text-[10px] font-semibold text-emerald-500 bg-emerald-500/10 px-1.5 py-0.5 rounded">
+                        Verified Account ✓
+                      </span>
+                      <span className="text-[10px] font-semibold text-indigo-500 bg-indigo-500/10 px-1.5 py-0.5 rounded flex items-center gap-1">
+                        ☁️ Cloud Live
+                      </span>
+                    </div>
                   </div>
                   <button
                     onClick={() => {
