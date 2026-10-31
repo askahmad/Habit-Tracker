@@ -23,6 +23,7 @@ import { db, doc, getDoc, setDoc, serverTimestamp } from '../../firebase';
 export default function Dashboard({ user, onSignOut, isDarkMode, toggleTheme, soundEnabled, toggleSound }) {
   // Habit State
   const [habits, setHabits] = useState(() => {
+    if (user?.isDemo) return STARTER_HABITS;
     try {
       const saved = localStorage.getItem(`habitpulse_habits_${user.email}`);
       return saved ? JSON.parse(saved) : STARTER_HABITS;
@@ -31,12 +32,14 @@ export default function Dashboard({ user, onSignOut, isDarkMode, toggleTheme, so
     }
   });
 
+  // Player Total XP: New accounts start at Level 1 with 0 XP
   const [totalXp, setTotalXp] = useState(() => {
+    if (user?.isDemo) return 0;
     try {
       const saved = localStorage.getItem(`habitpulse_xp_${user.email}`);
-      return saved ? Number(saved) : 100;
+      return (saved !== null && saved !== undefined && saved !== '') ? Number(saved) : 0;
     } catch {
-      return 100;
+      return 0;
     }
   });
 
@@ -69,8 +72,9 @@ export default function Dashboard({ user, onSignOut, isDarkMode, toggleTheme, so
 
   const [isCloudSynced, setIsCloudSynced] = useState(false);
 
-  // 1. Fetch initial state from Firestore Cloud if available
+  // 1. Fetch initial state from Firestore Cloud if available (Strictly skipped for Demo)
   useEffect(() => {
+    if (user?.isDemo) return;
     let isMounted = true;
     const fetchCloudData = async () => {
       if (!db || !user?.email) return;
@@ -95,10 +99,12 @@ export default function Dashboard({ user, onSignOut, isDarkMode, toggleTheme, so
     };
     fetchCloudData();
     return () => { isMounted = false; };
-  }, [user.uid, user.email]);
+  }, [user.uid, user.email, user.isDemo]);
 
-  // 2. Save locally and auto-sync to Firebase Cloud
+  // 2. Save locally and auto-sync to Firebase Cloud (Strictly skipped for Demo mode)
   useEffect(() => {
+    if (user?.isDemo) return; // DEMO MODE NEVER SAVES DATA
+
     localStorage.setItem(`habitpulse_habits_${user.email}`, JSON.stringify(habits));
     localStorage.setItem(`habitpulse_xp_${user.email}`, String(totalXp));
 
@@ -121,7 +127,7 @@ export default function Dashboard({ user, onSignOut, isDarkMode, toggleTheme, so
     }, 1200);
 
     return () => clearTimeout(timer);
-  }, [habits, totalXp, user.email, user.uid, user.name]);
+  }, [habits, totalXp, user.email, user.uid, user.name, user.isDemo]);
 
   const showToast = (msg) => {
     setToastMessage(msg);
@@ -302,13 +308,18 @@ export default function Dashboard({ user, onSignOut, isDarkMode, toggleTheme, so
               <Flame className="w-6 h-6" />
             </div>
             <div>
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1.5 flex-wrap">
                 <span className="font-extrabold text-base sm:text-lg tracking-tight bg-gradient-to-r from-indigo-500 via-violet-500 to-indigo-400 bg-clip-text text-transparent">
                   HabitIQ
                 </span>
                 <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.2 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
                   Pro
                 </span>
+                {user?.isDemo && (
+                  <span className="text-[10px] font-bold px-2 py-0.2 rounded-full bg-amber-500/15 text-amber-500 border border-amber-500/30">
+                    Demo Mode
+                  </span>
+                )}
               </div>
               <div className="flex items-center gap-2 mt-0.5">
                 <span className="text-[10px] font-black px-1.5 py-0.2 rounded-md bg-amber-500/15 text-amber-600 dark:text-amber-400">
@@ -451,12 +462,20 @@ export default function Dashboard({ user, onSignOut, isDarkMode, toggleTheme, so
                     <p className="font-bold text-xs text-slate-900 dark:text-white truncate">{user.name}</p>
                     <p className="text-[11px] text-slate-400 truncate">{user.email}</p>
                     <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
-                      <span className="text-[10px] font-semibold text-emerald-500 bg-emerald-500/10 px-1.5 py-0.5 rounded">
-                        Verified Account ✓
-                      </span>
-                      <span className="text-[10px] font-semibold text-indigo-500 bg-indigo-500/10 px-1.5 py-0.5 rounded flex items-center gap-1">
-                        ☁️ Cloud Live
-                      </span>
+                      {user.isDemo ? (
+                        <span className="text-[10px] font-bold text-amber-500 bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 rounded">
+                          ⚡ Demo Sandbox (No Save)
+                        </span>
+                      ) : (
+                        <>
+                          <span className="text-[10px] font-semibold text-emerald-500 bg-emerald-500/10 px-1.5 py-0.5 rounded">
+                            Verified Member ✓
+                          </span>
+                          <span className="text-[10px] font-semibold text-indigo-500 bg-indigo-500/10 px-1.5 py-0.5 rounded flex items-center gap-1">
+                            ☁️ Cloud Live
+                          </span>
+                        </>
+                      )}
                     </div>
                   </div>
                   <button

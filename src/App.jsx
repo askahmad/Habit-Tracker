@@ -10,7 +10,8 @@ export default function App() {
       const savedSession = localStorage.getItem('habitpulse_active_user');
       if (savedSession) {
         const parsed = JSON.parse(savedSession);
-        if (parsed && (parsed.uid || parsed.email)) {
+        // Strictly ignore demo sessions so demo data never persists
+        if (parsed && !parsed.isDemo && (parsed.uid || parsed.email)) {
           return parsed;
         }
       }
@@ -24,13 +25,15 @@ export default function App() {
   useEffect(() => {
     if (!auth) return;
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      // If a real Firebase user is signed in
       if (firebaseUser) {
         const formattedUser = {
           uid: firebaseUser.uid,
-          name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'Habit Master',
+          name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'Habit Member',
           email: firebaseUser.email,
           avatar: firebaseUser.photoURL || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(firebaseUser.displayName || firebaseUser.email || 'User')}&backgroundColor=4f46e5`,
-          isVerified: true
+          isVerified: true,
+          isDemo: false
         };
         setCurrentUser(formattedUser);
         localStorage.setItem('habitpulse_active_user', JSON.stringify(formattedUser));
@@ -78,7 +81,12 @@ export default function App() {
   // When user successfully authenticates
   const handleAuthenticated = (userObj) => {
     setCurrentUser(userObj);
-    localStorage.setItem('habitpulse_active_user', JSON.stringify(userObj));
+    // Real users are persisted; Demo users are NEVER saved to localStorage
+    if (!userObj?.isDemo) {
+      localStorage.setItem('habitpulse_active_user', JSON.stringify(userObj));
+    } else {
+      localStorage.removeItem('habitpulse_active_user');
+    }
   };
 
   // Sign out / lock
@@ -88,7 +96,7 @@ export default function App() {
         await signOut(auth);
       }
     } catch (e) {
-      console.warn('Sign out error:', e);
+      console.warn('Sign out notice:', e);
     }
     setCurrentUser(null);
     localStorage.removeItem('habitpulse_active_user');
@@ -102,7 +110,7 @@ export default function App() {
     setSoundEnabled((prev) => !prev);
   };
 
-  // AUTH GATE: If no user is logged in, show AuthScreen (Login / Signup)
+  // AUTH GATE: If no user is logged in, show AuthScreen (Strict Login / Signup)
   if (!currentUser) {
     return (
       <AuthScreen
