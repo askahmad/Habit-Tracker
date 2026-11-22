@@ -3,9 +3,9 @@ import { X, Trash2, Save } from 'lucide-react';
 import { COLOR_THEMES } from '../../data/defaultData';
 
 const COMMON_ICONS = [
-  '📗', '📜', '🎙️', '🕌', '🧎', '📿', '🤲', '📖', '🌙', 
-  '💧', '🏋️', '💻', '📚', '🧘', '🚶', 
-  '💤', '🥗', '✍️', '☀️', '💊', '🎯', 
+  '📗', '📜', '🎙️', '🕌', '🧎', '📿', '🤲', '📖', '🌙',
+  '💧', '🏋️', '💻', '📚', '🧘', '🚶',
+  '💤', '🥗', '✍️', '☀️', '💊', '🎯',
   '🏃', '⚡', '🕊️', '❤️', '🧠', '✨'
 ];
 
@@ -119,11 +119,10 @@ export default function EditHabitModal({ isOpen, habit, onClose, onUpdateHabit, 
                   key={emoji}
                   type="button"
                   onClick={() => setIcon(emoji)}
-                  className={`w-9 h-9 rounded-xl text-lg flex items-center justify-center transition-all ${
-                    icon === emoji
+                  className={`w-9 h-9 rounded-xl text-lg flex items-center justify-center transition-all ${icon === emoji
                       ? 'bg-indigo-600 scale-110 shadow-md ring-2 ring-indigo-400'
                       : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700'
-                  }`}
+                    }`}
                 >
                   {emoji}
                 </button>
@@ -205,11 +204,10 @@ export default function EditHabitModal({ isOpen, habit, onClose, onUpdateHabit, 
                   key={preset.mins}
                   type="button"
                   onClick={() => setTargetMinutes(preset.mins)}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
-                    targetMinutes === preset.mins
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${targetMinutes === preset.mins
                       ? 'bg-indigo-600 text-white shadow-sm ring-1 ring-indigo-400'
                       : 'bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-600'
-                  }`}
+                    }`}
                 >
                   {preset.label}
                 </button>
@@ -228,9 +226,8 @@ export default function EditHabitModal({ isOpen, habit, onClose, onUpdateHabit, 
                     key={cKey}
                     type="button"
                     onClick={() => setColor(cKey)}
-                    className={`w-6 h-6 rounded-full ${COLOR_THEMES[cKey].bg} transition-all ${
-                      color === cKey ? 'ring-2 ring-offset-2 ring-indigo-500 scale-110' : 'opacity-70'
-                    }`}
+                    className={`w-6 h-6 rounded-full ${COLOR_THEMES[cKey].bg} transition-all ${color === cKey ? 'ring-2 ring-offset-2 ring-indigo-500 scale-110' : 'opacity-70'
+                      }`}
                   />
                 ))}
               </div>
