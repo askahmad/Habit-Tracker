@@ -2,7 +2,12 @@ import React, { useState } from 'react';
 import { X, Plus, Sparkles } from 'lucide-react';
 import { COLOR_THEMES } from '../../data/defaultData';
 
-const COMMON_ICONS = ['💧', '🏋️', '💻', '📚', '🧘', '🚶', '💤', '🥗', '✍️', '☀️', '💊', '🎯', '🏃', '🥑', '⚡', '🕊️'];
+const COMMON_ICONS = [
+  '🕌', '🧎', '📿', '🤲', '📖', '🌙', 
+  '💧', '🏋️', '💻', '📚', '🧘', '🚶', 
+  '💤', '🥗', '✍️', '☀️', '💊', '🎯', 
+  '🏃', '⚡', '🕊️', '❤️', '🧠', '✨'
+];
 
 export default function AddHabitModal({ isOpen, onClose, onAddHabit }) {
   const [name, setName] = useState('');
@@ -78,9 +83,22 @@ export default function AddHabitModal({ isOpen, onClose, onAddHabit }) {
 
           {/* Quick Icon Selector */}
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
-              Choose Icon ({icon})
-            </label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                Choose Icon ({icon})
+              </label>
+              <div className="flex items-center gap-1.5 text-xs text-slate-400">
+                <span>Custom:</span>
+                <input
+                  type="text"
+                  maxLength="2"
+                  value={icon}
+                  onChange={(e) => setIcon(e.target.value)}
+                  placeholder="Emoji"
+                  className="w-10 text-center py-0.5 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                />
+              </div>
+            </div>
             <div className="flex items-center gap-2 flex-wrap">
               {COMMON_ICONS.map((emoji) => (
                 <button
