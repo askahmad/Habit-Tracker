@@ -142,15 +142,20 @@ export function toDateKey(date) {
 }
 
 export function calculatePlayerLevel(xp = 0) {
-  const level = Math.floor(xp / 100) + 1;
-  const currentLevelXp = xp % 100;
+  const safeXp = Math.max(0, Number(xp) || 0);
+  const xpPerLevel = 250; // Balanced RPG curve: ~13 completed habits per level
+  const level = Math.floor(safeXp / xpPerLevel) + 1;
+  const currentLevelXp = safeXp % xpPerLevel;
+  const nextLevelXp = xpPerLevel;
+
   let rank = 'Novice Striver';
-  if (level >= 10) rank = 'Titan of Mastery';
-  else if (level >= 7) rank = 'Discipline Grandmaster';
-  else if (level >= 5) rank = 'Momentum Paragon';
+  if (level >= 8) rank = 'Titan of Mastery';
+  else if (level >= 6) rank = 'Discipline Grandmaster';
+  else if (level >= 5) rank = 'Focus Master';
+  else if (level >= 4) rank = 'Momentum Paragon';
   else if (level >= 3) rank = 'Habit Virtuoso';
   else if (level >= 2) rank = 'Consistent Apprentice';
 
-  return { level, currentLevelXp, rank, totalXp: xp };
+  return { level, currentLevelXp, nextLevelXp, rank, totalXp: safeXp };
 }
 

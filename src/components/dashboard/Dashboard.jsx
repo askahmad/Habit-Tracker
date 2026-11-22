@@ -226,19 +226,32 @@ export default function Dashboard({ user, onSignOut, isDarkMode, toggleTheme, so
     );
   };
 
-  // Automatic fix on load: If user has 0 completed check-ins, XP should be 0 (Lv. 1)
+  // Automatic reconciliation: Always calibrate XP to match actual completed habits & durations
+  // (Prevents phantom level-ups from creating habits or old unchecking bugs)
   useEffect(() => {
     if (user?.isDemo) return;
-    const totalCheckinsCount = habits.reduce((acc, h) => {
-      return acc + (h.logs ? Object.values(h.logs).filter((v) => v === true).length : 0);
-    }, 0);
+    let actualEarnedXp = 0;
+    habits.forEach((h) => {
+      const targetMins = h.targetMinutes || 0;
+      if (h.logs) {
+        Object.entries(h.logs).forEach(([k, v]) => {
+          if (targetMins > 0) {
+            const logged = h.durations?.[k] || (v === true ? targetMins : 0);
+            if (logged > 0) {
+              actualEarnedXp += Math.min(50, Math.round((logged / targetMins) * 40));
+            }
+          } else {
+            if (v === true) actualEarnedXp += 20;
+          }
+        });
+      }
+    });
 
-    // If no habits are completed but XP was inflated by check/uncheck bug
-    if (totalCheckinsCount === 0 && totalXp > 0) {
-      setTotalXp(0);
-      localStorage.setItem(`habitpulse_xp_${user.email}`, '0');
+    if (totalXp !== actualEarnedXp) {
+      setTotalXp(actualEarnedXp);
+      localStorage.setItem(`habitpulse_xp_${user.email}`, String(actualEarnedXp));
     }
-  }, [habits.length]);
+  }, [habits]);
 
   // Direct habit delete handler (outside on row)
   const handleDeleteHabit = (habitId, habitName = 'Habit') => {
@@ -464,10 +477,10 @@ export default function Dashboard({ user, onSignOut, isDarkMode, toggleTheme, so
                   {rpg.rank}
                 </span>
                 {/* XP Progress Mini-bar */}
-                <div className="w-16 bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden" title={`${rpg.currentLevelXp}/100 XP to next level`}>
+                <div className="w-16 bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden" title={`${rpg.currentLevelXp}/${rpg.nextLevelXp} XP to next level`}>
                   <div
                     className="bg-gradient-to-r from-amber-500 to-indigo-500 h-full rounded-full transition-all duration-300"
-                    style={{ width: `${rpg.currentLevelXp}%` }}
+                    style={{ width: `${Math.min(100, Math.round((rpg.currentLevelXp / rpg.nextLevelXp) * 100))}%` }}
                   />
                 </div>
               </div>
@@ -1130,7 +1143,13 @@ export default function Dashboard({ user, onSignOut, isDarkMode, toggleTheme, so
                   >
                     <div className="flex items-center gap-3.5 min-w-0">
                       <button
-                        onClick={() => handleToggleHabitDay(h.id, todayKey)}
+                        onClick={() => {
+                          if (h.targetMinutes > 0) {
+                            setLogTimeModalData({ isOpen: true, habit: h, dateKey: todayKey });
+                          } else {
+                            handleToggleHabitDay(h.id, todayKey);
+                          }
+                        }}
                         className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
                           isDone
                             ? `${theme.bg} text-white shadow-md`
@@ -1207,7 +1226,7 @@ export default function Dashboard({ user, onSignOut, isDarkMode, toggleTheme, so
         onAddHabit={(newHabit) => {
           setHabits((prev) => [...prev, newHabit]);
           playSound('complete', soundEnabled);
-          addXp(25, 'Created New Habit');
+          showToast(`✨ "${newHabit.name}" added to routine!`);
         }}
       />
 
@@ -1270,7 +1289,8 @@ export default function Dashboard({ user, onSignOut, isDarkMode, toggleTheme, so
             notes: {}
           };
           setHabits((prev) => [...prev, newHabit]);
-          addXp(25, 'Added Habit from Template');
+          playSound('complete', soundEnabled);
+          showToast(`✨ Added "${newHabit.name}" from template!`);
         }}
       />
 

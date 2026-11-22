@@ -186,13 +186,13 @@ export default function AddHabitModal({ isOpen, onClose, onAddHabit }) {
             </p>
             <div className="flex items-center gap-1.5 flex-wrap pt-1">
               {[
-                { label: 'None', mins: 0 },
+                { label: 'None (Check-in)', mins: 0 },
                 { label: '30m', mins: 30 },
                 { label: '45m', mins: 45 },
-                { label: '1h', mins: 60 },
-                { label: '1.5h', mins: 90 },
-                { label: '2h ⭐', mins: 120 },
-                { label: '3h', mins: 180 }
+                { label: '1 Hour', mins: 60 },
+                { label: '1.5 Hours', mins: 90 },
+                { label: '2 Hours', mins: 120 },
+                { label: '3 Hours', mins: 180 }
               ].map((preset) => (
                 <button
                   key={preset.mins}
@@ -207,6 +207,21 @@ export default function AddHabitModal({ isOpen, onClose, onAddHabit }) {
                   {preset.label}
                 </button>
               ))}
+            </div>
+
+            <div className="flex items-center gap-2 pt-2 border-t border-slate-200/60 dark:border-slate-700/60 text-xs">
+              <span className="text-slate-500 dark:text-slate-400 font-semibold">Custom Duration (mins):</span>
+              <input
+                type="number"
+                min="0"
+                max="720"
+                step="5"
+                value={targetMinutes || ''}
+                onChange={(e) => setTargetMinutes(Math.max(0, Number(e.target.value) || 0))}
+                placeholder="e.g. 60 or 120"
+                className="w-24 px-2.5 py-1 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-xs text-slate-900 dark:text-white font-bold"
+              />
+              <span className="text-slate-400 text-[11px]">mins</span>
             </div>
           </div>
 
