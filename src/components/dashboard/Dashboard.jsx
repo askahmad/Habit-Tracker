@@ -3,7 +3,7 @@ import {
   Flame, Plus, Target, LayoutGrid, Timer, Headphones, Share2, 
   Sparkles, Award, Volume2, VolumeX, Sun, Moon, LogOut, ChevronLeft, 
   ChevronRight, Search, Check, CheckCheck, Mic, ChevronDown,
-  FileText, Edit3
+  FileText, Edit3, Trash2, RotateCcw
 } from 'lucide-react';
 import { 
   COLOR_THEMES, STARTER_HABITS, MOTIVATION_QUOTES,
@@ -141,6 +141,53 @@ export default function Dashboard({ user, onSignOut, isDarkMode, toggleTheme, so
     showToast(`⭐ +${amount} XP ${reason ? `(${reason})` : ''}!`);
   };
 
+  const deductXp = (amount, reason = '') => {
+    setTotalXp((prev) => Math.max(0, prev - amount));
+    showToast(`-${amount} XP ${reason ? `(${reason})` : ''}`);
+  };
+
+  // Reconcile XP with actual completed habits
+  const handleSyncXp = () => {
+    let earnedCheckinXp = 0;
+    habits.forEach((h) => {
+      if (h.logs) {
+        Object.values(h.logs).forEach((v) => {
+          if (v === true) earnedCheckinXp += 20;
+        });
+      }
+    });
+
+    setTotalXp(earnedCheckinXp);
+    if (!user?.isDemo) {
+      localStorage.setItem(`habitpulse_xp_${user.email}`, String(earnedCheckinXp));
+    }
+    playSound('complete', soundEnabled);
+    showToast(`🔄 Level synced! Total XP: ${earnedCheckinXp} (${earnedCheckinXp / 20} habits done)`);
+  };
+
+  // Automatic fix on load: If user has 0 completed check-ins, XP should be 0 (Lv. 1)
+  useEffect(() => {
+    if (user?.isDemo) return;
+    const totalCheckinsCount = habits.reduce((acc, h) => {
+      return acc + (h.logs ? Object.values(h.logs).filter((v) => v === true).length : 0);
+    }, 0);
+
+    // If no habits are completed but XP was inflated by check/uncheck bug
+    if (totalCheckinsCount === 0 && totalXp > 0) {
+      setTotalXp(0);
+      localStorage.setItem(`habitpulse_xp_${user.email}`, '0');
+    }
+  }, [habits.length]);
+
+  // Direct habit delete handler (outside on row)
+  const handleDeleteHabit = (habitId, habitName = 'Habit') => {
+    if (window.confirm(`Are you sure you want to delete "${habitName}"? This action cannot be undone.`)) {
+      setHabits((prev) => prev.filter((h) => h.id !== habitId));
+      playSound('click', soundEnabled);
+      showToast(`🗑️ "${habitName}" deleted successfully`);
+    }
+  };
+
   // Helper: compute current week days
   const getWeekDays = () => {
     const today = new Date();
@@ -162,7 +209,7 @@ export default function Dashboard({ user, onSignOut, isDarkMode, toggleTheme, so
   const todayKey = getTodayKey();
   const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-  // Toggle habit on a specific date
+  // Toggle habit check-in: Complete adds 20 XP; Uncomplete strictly deducts 20 XP!
   const handleToggleHabitDay = (habitId, dateKey) => {
     const isToday = dateKey === todayKey;
     const isPast = dateKey < todayKey;
@@ -183,19 +230,46 @@ export default function Dashboard({ user, onSignOut, isDarkMode, toggleTheme, so
         const updatedLogs = { ...(h.logs || {}) };
 
         if (!currentLog) {
-          // Check-in done
+          // Check-in done -> +20 XP
           updatedLogs[dateKey] = true;
           playSound('complete', soundEnabled);
           addXp(20, 'Daily Check-in');
         } else if (currentLog === true) {
-          // Freeze shield mode
+          // Unchecking -> strictly deduct 20 XP (prevents infinite level up bug)
+          delete updatedLogs[dateKey];
+          playSound('click', soundEnabled);
+          deductXp(20, 'Check-in Reverted');
+        } else if (currentLog === 'freeze') {
+          // Clear freeze shield
+          delete updatedLogs[dateKey];
+          playSound('click', soundEnabled);
+          showToast('Streak Freeze Shield removed');
+        }
+
+        return { ...h, logs: updatedLogs };
+      })
+    );
+  };
+
+  // Explicit Streak Freeze Shield toggle
+  const handleToggleFreeze = (habitId, dateKey) => {
+    setHabits((prev) =>
+      prev.map((h) => {
+        if (h.id !== habitId) return h;
+        const currentLog = h.logs ? h.logs[dateKey] : null;
+        const updatedLogs = { ...(h.logs || {}) };
+
+        if (currentLog === 'freeze') {
+          delete updatedLogs[dateKey];
+          playSound('click', soundEnabled);
+          showToast('❄️ Streak Freeze Shield removed');
+        } else {
+          if (currentLog === true) {
+            deductXp(20, 'Replaced by Freeze');
+          }
           updatedLogs[dateKey] = 'freeze';
           playSound('click', soundEnabled);
           showToast('❄️ Streak Freeze Shield active! Preserving streak.');
-        } else {
-          // Clear
-          delete updatedLogs[dateKey];
-          playSound('click', soundEnabled);
         }
 
         return { ...h, logs: updatedLogs };
@@ -592,7 +666,17 @@ export default function Dashboard({ user, onSignOut, isDarkMode, toggleTheme, so
 
           {/* Card 4: Player Level & XP */}
           <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-sm">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">RPG Level</span>
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">RPG Level</span>
+              <button
+                onClick={handleSyncXp}
+                className="text-[10px] text-slate-400 hover:text-indigo-500 flex items-center gap-1 transition-colors px-1.5 py-0.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800"
+                title="Recalculate and synchronize XP with actual completed habits"
+              >
+                <RotateCcw className="w-3 h-3" />
+                <span>Sync</span>
+              </button>
+            </div>
             <div className="mt-2 flex items-baseline gap-2">
               <span className="text-2xl sm:text-3xl font-black text-violet-500">Lv. {rpg.level}</span>
               <span className="text-xs text-slate-400">{totalXp} XP</span>
@@ -855,6 +939,16 @@ export default function Dashboard({ user, onSignOut, isDarkMode, toggleTheme, so
                               >
                                 <Edit3 className="w-4 h-4" />
                               </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteHabit(habit.id, habit.name);
+                                }}
+                                className="p-1.5 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-rose-500/10 transition-colors"
+                                title="Delete Habit"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
                             </div>
                           </td>
                         </tr>
@@ -954,16 +1048,25 @@ export default function Dashboard({ user, onSignOut, isDarkMode, toggleTheme, so
                       </div>
                     </div>
 
-                    <button
-                      onClick={() => {
-                        setTimerHabitId(h.id);
-                        setIsTimerOpen(true);
-                      }}
-                      className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-emerald-500/10 hover:text-emerald-500 text-slate-500 transition-all"
-                      title="Launch Sprint Timer"
-                    >
-                      <Timer className="w-4 h-4" />
-                    </button>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <button
+                        onClick={() => {
+                          setTimerHabitId(h.id);
+                          setIsTimerOpen(true);
+                        }}
+                        className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-emerald-500/10 hover:text-emerald-500 text-slate-500 transition-all"
+                        title="Launch Sprint Timer"
+                      >
+                        <Timer className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteHabit(h.id, h.name)}
+                        className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-rose-500/10 hover:text-rose-500 text-slate-400 transition-all"
+                        title="Delete Habit"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 );
               })}
