@@ -103,8 +103,8 @@ export default function TimerModal({ isOpen, habits = [], selectedHabitId = null
         </div>
 
         {/* Preset Durations */}
-        <div className="flex items-center justify-center gap-2">
-          {[15, 25, 45, 60].map((mins) => (
+        <div className="flex items-center justify-center gap-1.5 flex-wrap">
+          {[15, 25, 45, 60, 90, 120].map((mins) => (
             <button
               key={mins}
               onClick={() => {
@@ -113,11 +113,11 @@ export default function TimerModal({ isOpen, habits = [], selectedHabitId = null
               }}
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
                 durationMins === mins
-                  ? 'bg-indigo-600 text-white shadow-sm'
+                  ? 'bg-indigo-600 text-white shadow-sm ring-2 ring-indigo-400'
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
               }`}
             >
-              {mins}m
+              {mins >= 60 ? `${mins / 60}h (${mins}m)` : `${mins}m`}
             </button>
           ))}
         </div>

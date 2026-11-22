@@ -3,7 +3,7 @@ import {
   Flame, Plus, Target, LayoutGrid, Timer, Headphones, Share2, 
   Sparkles, Award, Volume2, VolumeX, Sun, Moon, LogOut, ChevronLeft, 
   ChevronRight, Search, Check, CheckCheck, Mic, ChevronDown,
-  FileText, Edit3, Trash2, RotateCcw
+  FileText, Edit3, Trash2, RotateCcw, Clock
 } from 'lucide-react';
 import { 
   COLOR_THEMES, STARTER_HABITS, MOTIVATION_QUOTES,
@@ -18,6 +18,7 @@ import TemplatesModal from '../modals/TemplatesModal';
 import BadgesModal from '../modals/BadgesModal';
 import NoteModal from '../modals/NoteModal';
 import ShareModal from '../modals/ShareModal';
+import LogTimeModal from '../modals/LogTimeModal';
 import { db, doc, getDoc, setDoc, serverTimestamp } from '../../firebase';
 
 export default function Dashboard({ user, onSignOut, isDarkMode, toggleTheme, soundEnabled, toggleSound }) {
@@ -69,6 +70,7 @@ export default function Dashboard({ user, onSignOut, isDarkMode, toggleTheme, so
   const [isBadgesOpen, setIsBadgesOpen] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [noteModalData, setNoteModalData] = useState({ isOpen: false, habit: null, dateKey: null });
+  const [logTimeModalData, setLogTimeModalData] = useState({ isOpen: false, habit: null, dateKey: null });
 
   const [isCloudSynced, setIsCloudSynced] = useState(false);
 
@@ -146,13 +148,21 @@ export default function Dashboard({ user, onSignOut, isDarkMode, toggleTheme, so
     showToast(`-${amount} XP ${reason ? `(${reason})` : ''}`);
   };
 
-  // Reconcile XP with actual completed habits
+  // Reconcile XP with actual completed habits (including proportional duration XP)
   const handleSyncXp = () => {
     let earnedCheckinXp = 0;
     habits.forEach((h) => {
+      const targetMins = h.targetMinutes || 0;
       if (h.logs) {
-        Object.values(h.logs).forEach((v) => {
-          if (v === true) earnedCheckinXp += 20;
+        Object.entries(h.logs).forEach(([k, v]) => {
+          if (targetMins > 0) {
+            const logged = h.durations?.[k] || (v === true ? targetMins : 0);
+            if (logged > 0) {
+              earnedCheckinXp += Math.min(50, Math.round((logged / targetMins) * 40));
+            }
+          } else {
+            if (v === true) earnedCheckinXp += 20;
+          }
         });
       }
     });
@@ -162,7 +172,58 @@ export default function Dashboard({ user, onSignOut, isDarkMode, toggleTheme, so
       localStorage.setItem(`habitpulse_xp_${user.email}`, String(earnedCheckinXp));
     }
     playSound('complete', soundEnabled);
-    showToast(`🔄 Level synced! Total XP: ${earnedCheckinXp} (${earnedCheckinXp / 20} habits done)`);
+    showToast(`🔄 Level synced! Total XP: ${earnedCheckinXp}`);
+  };
+
+  // Duration Logging & Proportional XP calculation
+  // Target duration (e.g. 2 Hours = 120m): 100% = 40 XP. 
+  // Partial logging (e.g. 1h 30m = 90m): 90/120 * 40 = 30 XP!
+  const handleSaveDuration = (habitId, dateKey, loggedMins) => {
+    setHabits((prev) =>
+      prev.map((h) => {
+        if (h.id !== habitId) return h;
+        const targetMins = h.targetMinutes || 120;
+        const oldLogged = h.durations?.[dateKey] || (h.logs?.[dateKey] === true ? targetMins : 0);
+
+        const oldXp = oldLogged > 0 ? Math.min(50, Math.round((oldLogged / targetMins) * 40)) : 0;
+        const newXp = loggedMins > 0 ? Math.min(50, Math.round((loggedMins / targetMins) * 40)) : 0;
+        const xpDelta = newXp - oldXp;
+
+        if (xpDelta > 0) {
+          addXp(xpDelta, `Time Log: ${Math.floor(loggedMins / 60)}h ${loggedMins % 60}m / ${Math.floor(targetMins / 60)}h`);
+        } else if (xpDelta < 0) {
+          deductXp(Math.abs(xpDelta), 'Adjusted Logged Time');
+        }
+
+        const updatedDurations = { ...(h.durations || {}) };
+        const updatedLogs = { ...(h.logs || {}) };
+
+        if (loggedMins > 0) {
+          updatedDurations[dateKey] = loggedMins;
+          if (loggedMins >= targetMins) {
+            updatedLogs[dateKey] = true;
+            playSound('victory', soundEnabled);
+            triggerConfetti();
+            showToast(`🎉 Goal completed! ${Math.floor(loggedMins / 60)}h ${loggedMins % 60}m logged (+${newXp} XP)`);
+          } else {
+            updatedLogs[dateKey] = 'partial';
+            playSound('complete', soundEnabled);
+            showToast(`⏱️ Logged ${Math.floor(loggedMins / 60)}h ${loggedMins % 60}m (${Math.round((loggedMins / targetMins) * 100)}%) -> +${newXp} XP!`);
+          }
+        } else {
+          delete updatedDurations[dateKey];
+          delete updatedLogs[dateKey];
+          playSound('click', soundEnabled);
+          showToast('Reset logged duration to 0m');
+        }
+
+        return {
+          ...h,
+          durations: updatedDurations,
+          logs: updatedLogs
+        };
+      })
+    );
   };
 
   // Automatic fix on load: If user has 0 completed check-ins, XP should be 0 (Lv. 1)
@@ -844,6 +905,26 @@ export default function Dashboard({ user, onSignOut, isDarkMode, toggleTheme, so
                                     ⚡ {habit.stacking}
                                   </p>
                                 )}
+                                {habit.targetMinutes > 0 && (
+                                  <button
+                                    type="button"
+                                    onClick={() => setLogTimeModalData({ isOpen: true, habit, dateKey: todayKey })}
+                                    className="mt-1 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg text-[10px] font-bold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800/80 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors"
+                                    title="Click to log duration & earn proportional XP"
+                                  >
+                                    <Clock className="w-3 h-3" />
+                                    <span>
+                                      {habit.durations?.[todayKey] ? (
+                                        <>
+                                          {Math.floor(habit.durations[todayKey] / 60)}h {habit.durations[todayKey] % 60}m / {Math.floor(habit.targetMinutes / 60)}h{' '}
+                                          ({Math.min(100, Math.round((habit.durations[todayKey] / habit.targetMinutes) * 100))}%)
+                                        </>
+                                      ) : (
+                                        <>Goal: {Math.floor(habit.targetMinutes / 60)}h {habit.targetMinutes % 60 > 0 ? `${habit.targetMinutes % 60}m` : ''}</>
+                                      )}
+                                    </span>
+                                  </button>
+                                )}
                               </div>
                             </div>
                           </td>
@@ -854,8 +935,10 @@ export default function Dashboard({ user, onSignOut, isDarkMode, toggleTheme, so
                             const isToday = key === todayKey;
                             const isPast = key < todayKey;
                             const isDone = habit.logs && habit.logs[key] === true;
+                            const isPartial = habit.logs && habit.logs[key] === 'partial';
                             const isFrozen = habit.logs && habit.logs[key] === 'freeze';
                             const hasNote = habit.notes && habit.notes[key];
+                            const dayDuration = habit.durations?.[key] || 0;
 
                             let buttonStyle = 'bg-slate-100 dark:bg-slate-800 text-slate-400';
                             let icon = <span className="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-700" />;
@@ -863,6 +946,10 @@ export default function Dashboard({ user, onSignOut, isDarkMode, toggleTheme, so
                             if (isDone) {
                               buttonStyle = `${theme.bg} text-white shadow-sm`;
                               icon = <Check className="w-3.5 h-3.5 stroke-[3]" />;
+                            } else if (isPartial) {
+                              const pct = Math.min(100, Math.round((dayDuration / (habit.targetMinutes || 120)) * 100));
+                              buttonStyle = 'bg-amber-500/20 border-2 border-amber-500 text-amber-500';
+                              icon = <span className="text-[9px] font-black">{pct}%</span>;
                             } else if (isFrozen) {
                               buttonStyle = 'bg-cyan-500/20 border-2 border-cyan-400 text-cyan-400';
                               icon = <span className="text-xs">❄️</span>;
@@ -878,12 +965,22 @@ export default function Dashboard({ user, onSignOut, isDarkMode, toggleTheme, so
                               <td key={key} className="py-2.5 px-2 text-center">
                                 <button
                                   type="button"
-                                  onClick={() => handleToggleHabitDay(habit.id, key)}
+                                  onClick={() => {
+                                    if (habit.targetMinutes > 0 && isToday) {
+                                      setLogTimeModalData({ isOpen: true, habit, dateKey: key });
+                                    } else {
+                                      handleToggleHabitDay(habit.id, key);
+                                    }
+                                  }}
                                   onContextMenu={(e) => {
                                     e.preventDefault();
                                     setNoteModalData({ isOpen: true, habit, dateKey: key });
                                   }}
-                                  title={`${key}: Click to toggle, right-click for reflection note`}
+                                  title={
+                                    habit.targetMinutes > 0
+                                      ? `${key}: Click to log work time, right-click for note`
+                                      : `${key}: Click to toggle, right-click for reflection note`
+                                  }
                                   className={`w-8 h-8 rounded-xl mx-auto flex items-center justify-center transition-all relative ${buttonStyle}`}
                                 >
                                   {icon}
@@ -912,6 +1009,15 @@ export default function Dashboard({ user, onSignOut, isDarkMode, toggleTheme, so
                           {/* Actions */}
                           <td className="py-3 pl-2 pr-6 text-right">
                             <div className="flex items-center justify-end gap-1">
+                              {habit.targetMinutes > 0 && (
+                                <button
+                                  onClick={() => setLogTimeModalData({ isOpen: true, habit, dateKey: todayKey })}
+                                  className="p-1.5 rounded-lg text-slate-400 hover:text-indigo-500 hover:bg-indigo-500/10 transition-colors"
+                                  title="Log Work / Duration Hours"
+                                >
+                                  <Clock className="w-4 h-4" />
+                                </button>
+                              )}
                               <button
                                 onClick={() => {
                                   setTimerHabitId(habit.id);
@@ -1045,6 +1151,25 @@ export default function Dashboard({ user, onSignOut, isDarkMode, toggleTheme, so
                           </span>
                           <span>🔥 {streak}d streak</span>
                         </div>
+                        {h.targetMinutes > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => setLogTimeModalData({ isOpen: true, habit: h, dateKey: todayKey })}
+                            className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800/80 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors"
+                          >
+                            <Clock className="w-3.5 h-3.5" />
+                            <span>
+                              {h.durations?.[todayKey] ? (
+                                <>
+                                  {Math.floor(h.durations[todayKey] / 60)}h {h.durations[todayKey] % 60}m / {Math.floor(h.targetMinutes / 60)}h{' '}
+                                  ({Math.min(100, Math.round((h.durations[todayKey] / h.targetMinutes) * 100))}%)
+                                </>
+                              ) : (
+                                <>Log Hours (Target: {Math.floor(h.targetMinutes / 60)}h {h.targetMinutes % 60 > 0 ? `${h.targetMinutes % 60}m` : ''})</>
+                              )}
+                            </span>
+                          </button>
+                        )}
                       </div>
                     </div>
 
@@ -1139,6 +1264,8 @@ export default function Dashboard({ user, onSignOut, isDarkMode, toggleTheme, so
             stacking: tpl.stacking || '',
             color: tpl.color,
             targetPerWeek: tpl.targetPerWeek,
+            targetMinutes: tpl.targetMinutes || 0,
+            durations: {},
             logs: {},
             notes: {}
           };
@@ -1181,6 +1308,20 @@ export default function Dashboard({ user, onSignOut, isDarkMode, toggleTheme, so
         habits={habits}
         totalXp={totalXp}
         onClose={() => setIsShareOpen(false)}
+      />
+
+      <LogTimeModal
+        isOpen={logTimeModalData.isOpen}
+        habit={logTimeModalData.habit}
+        dateKey={logTimeModalData.dateKey || todayKey}
+        soundEnabled={soundEnabled}
+        onClose={() => setLogTimeModalData({ isOpen: false, habit: null, dateKey: null })}
+        onSaveDuration={handleSaveDuration}
+        onLaunchTimer={(habitId, mins) => {
+          setLogTimeModalData({ isOpen: false, habit: null, dateKey: null });
+          setTimerHabitId(habitId);
+          setIsTimerOpen(true);
+        }}
       />
     </div>
   );

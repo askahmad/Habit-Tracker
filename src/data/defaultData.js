@@ -31,6 +31,7 @@ export const HABIT_TEMPLATES_CATALOG = [
   { id: 'tpl-posture', name: 'Posture Check & Wall Angels', icon: '🧍', category: 'Fitness', routine: 'Afternoon', color: 'violet', targetPerWeek: 7, stacking: 'At 2:00 PM afternoon calendar chime', desc: 'Counteract hunching, activate upper rhomboids & prevent neck pain.' },
 
   // 🧘 Mindfulness, Spirituality & Mental Clarity
+  { id: 'tpl-tilawat-quran', name: 'Tilawat-e-Quran (Daily Recitation)', icon: '📗', category: 'Mind', routine: 'Morning', color: 'emerald', targetPerWeek: 7, targetMinutes: 30, stacking: 'Right after Fajar prayer or before starting work', desc: 'Daily Quranic recitation with tajweed, deep reflection and Barakah.' },
   { id: 'tpl-namaz-5', name: '5 Daily Prayers (Namaz)', icon: '🕌', category: 'Mind', routine: 'Anytime', color: 'emerald', targetPerWeek: 7, stacking: 'Perform at the call to prayer (Adhan)', desc: 'Spiritual grounding, discipline, gratitude and mental tranquility 5x daily.' },
   { id: 'tpl-fajar-prayer', name: 'Fajar Namaz on Time', icon: '🧎', category: 'Mind', routine: 'Morning', color: 'cyan', targetPerWeek: 7, stacking: 'Immediately upon morning alarm at dawn', desc: 'Start the day in divine remembrance, Barakah and mental serenity.' },
   { id: 'tpl-quran-read', name: 'Daily Quran Recitation (1 Ruku)', icon: '📖', category: 'Mind', routine: 'Morning', color: 'indigo', targetPerWeek: 7, stacking: 'Right after completing Fajar prayer', desc: 'Spiritual reflection, Quranic wisdom and daily mindfulness.' },
